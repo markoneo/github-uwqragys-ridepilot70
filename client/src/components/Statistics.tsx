@@ -424,67 +424,143 @@ export default function Statistics() {
             )}
           </div>
 
-          {/* Company Distribution - Enhanced with percentages */}
+          {/* Company Distribution - Enhanced with modern graphics and percentages */}
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
             <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
               <Building2 className="w-5 h-5 mr-2 text-purple-500" />
               Companies Distribution
             </h3>
 
-            {pieChartData && !chartError ? (
-              <div className="h-56 sm:h-72 relative">
-                <div className="pie-container">
-                  <Pie data={pieChartData} options={pieChartOptions} />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {(() => {
-                  const totalProjects = Object.values(companyStats).reduce((sum, count) => sum + count, 0);
-                  
-                  return Object.entries(companyStats)
-                    .sort((a, b) => b[1] - a[1]) // Sort by project count descending
-                    .map(([companyId, count]) => {
-                      const percentage = totalProjects > 0 ? ((count / totalProjects) * 100).toFixed(1) : '0';
-                      const maxCount = Math.max(...Object.values(companyStats));
-                      const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0;
-                      
-                      return (
-                        <div key={companyId} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                              <span className="text-sm text-gray-700">{getCompanyName(companyId)}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-600 font-medium bg-gray-100 px-2 py-1 rounded-full">
-                                {count}
-                              </span>
-                              <span className="text-sm text-purple-600 font-medium bg-purple-100 px-2 py-1 rounded-full">
-                                {percentage}%
-                              </span>
-                            </div>
-                          </div>
-                          
-                          {/* Visual bar representation */}
-                          <div className="w-full bg-gray-100 rounded-full h-2">
-                            <div 
-                              className="bg-purple-500 h-2 rounded-full transition-all duration-500" 
-                              style={{ width: `${barWidth}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    });
-                })()}
+            <div className="space-y-4">
+              {(() => {
+                const totalProjects = Object.values(companyStats).reduce((sum, count) => sum + count, 0);
+                const sortedCompanies = Object.entries(companyStats)
+                  .sort((a, b) => b[1] - a[1]) // Sort by project count descending
+                  .slice(0, 10); // Show top 10 companies
                 
-                {Object.keys(companyStats).length === 0 && (
-                  <div className="text-center py-4">
-                    <p className="text-gray-500 text-sm">No company data available</p>
+                if (sortedCompanies.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">No company data available</p>
+                    </div>
+                  );
+                }
+
+                // Color palette for companies
+                const companyColors = [
+                  'from-purple-500 to-purple-600',
+                  'from-blue-500 to-blue-600',
+                  'from-green-500 to-green-600',
+                  'from-orange-500 to-orange-600',
+                  'from-pink-500 to-pink-600',
+                  'from-teal-500 to-teal-600',
+                  'from-indigo-500 to-indigo-600',
+                  'from-red-500 to-red-600',
+                  'from-yellow-500 to-yellow-600',
+                  'from-cyan-500 to-cyan-600'
+                ];
+
+                return (
+                  <div className="space-y-4">
+                    {/* Summary Stats */}
+                    <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-700">{sortedCompanies.length}</div>
+                        <div className="text-xs text-purple-600">Active Companies</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-700">{totalProjects}</div>
+                        <div className="text-xs text-blue-600">Total Projects</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-700">
+                          {sortedCompanies.length > 0 ? Math.round(totalProjects / sortedCompanies.length) : 0}
+                        </div>
+                        <div className="text-xs text-green-600">Avg per Company</div>
+                      </div>
+                    </div>
+
+                    {/* Enhanced Company Bars */}
+                    <div className="space-y-3">
+                      {sortedCompanies.map(([companyId, count], index) => {
+                        const percentage = totalProjects > 0 ? ((count / totalProjects) * 100) : 0;
+                        const colorClass = companyColors[index % companyColors.length];
+                        const isTopCompany = index === 0;
+                        
+                        return (
+                          <div key={companyId} className={`group transition-all duration-300 hover:transform hover:scale-[1.02] ${
+                            isTopCompany ? 'ring-2 ring-purple-200 ring-opacity-50' : ''
+                          }`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-3">
+                                <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${colorClass} shadow-sm`} />
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+                                    {getCompanyName(companyId)}
+                                  </span>
+                                  {isTopCompany && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                      <Star className="w-3 h-3 mr-1" />
+                                      Top
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-3">
+                                <div className="text-right">
+                                  <div className="text-sm font-semibold text-gray-900">{count} projects</div>
+                                  <div className="text-xs text-gray-500">{percentage.toFixed(1)}% of total</div>
+                                </div>
+                                <div className={`px-3 py-1 rounded-full text-sm font-bold text-white bg-gradient-to-r ${colorClass} shadow-sm`}>
+                                  {percentage.toFixed(0)}%
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Enhanced Progress Bar */}
+                            <div className="relative w-full bg-gray-100 rounded-full h-3 overflow-hidden shadow-inner">
+                              <div 
+                                className={`h-full bg-gradient-to-r ${colorClass} rounded-full transition-all duration-700 ease-out relative overflow-hidden group-hover:shadow-lg`}
+                                style={{ width: `${percentage}%` }}
+                              >
+                                {/* Shimmer effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white via-transparent opacity-30 transform -skew-x-12 animate-pulse" />
+                              </div>
+                              
+                              {/* Percentage label on bar for larger percentages */}
+                              {percentage > 15 && (
+                                <div 
+                                  className="absolute top-0 left-2 h-full flex items-center text-xs font-medium text-white"
+                                  style={{ width: `${percentage}%` }}
+                                >
+                                  {percentage.toFixed(1)}%
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Summary Footer */}
+                    {sortedCompanies.length > 0 && (
+                      <div className="mt-6 pt-4 border-t border-gray-100">
+                        <div className="flex justify-between items-center text-xs text-gray-500">
+                          <span>
+                            Top performer: <span className="font-medium text-purple-600">{getCompanyName(sortedCompanies[0][0])}</span>
+                          </span>
+                          <span>
+                            {sortedCompanies.length} of {Object.keys(companyStats).length} companies shown
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            )}
+                );
+              })()}
+            </div>
           </div>
         </div>
 
