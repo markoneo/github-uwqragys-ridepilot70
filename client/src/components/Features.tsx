@@ -76,7 +76,7 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0], index: n
           }
         }
       }}
-      className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+      className="group bg-white/60 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
       whileHover={{ scale: 1.02 }}
     >
       <div className="relative h-48 overflow-hidden">
@@ -132,12 +132,17 @@ export default function Features() {
   }, [showcaseControls, showcaseInView]);
 
   return (
-    <div className="bg-gray-50 py-24 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 left-0 w-96 h-96 bg-green-50 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-2/3 right-0 w-96 h-96 bg-blue-50 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    <div className="relative min-h-screen py-24 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Enhanced decorative background elements - matching hero */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[40%] -left-[15%] w-[60%] h-[60%] rounded-full bg-gradient-to-r from-green-100 to-emerald-100 blur-3xl opacity-40 animate-blob"></div>
+        <div className="absolute -bottom-[30%] right-[0%] w-[50%] h-[60%] rounded-full bg-gradient-to-l from-blue-100 to-cyan-100 blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[20%] right-[20%] w-[30%] h-[30%] rounded-full bg-gradient-to-br from-purple-100 to-pink-100 blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        
+        {/* Geometric shapes */}
+        <div className="absolute top-[15%] left-[10%] w-20 h-20 border border-green-200 rounded-full opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-[30%] right-[15%] w-16 h-16 bg-blue-200 rounded-lg opacity-20 transform rotate-45 animate-bounce"></div>
+        <div className="absolute top-[60%] left-[5%] w-12 h-12 bg-purple-200 rounded-full opacity-25 animate-ping"></div>
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -197,7 +202,7 @@ export default function Features() {
             hidden: { opacity: 0 },
             visible: { opacity: 1 }
           }}
-          className="mb-20 bg-white rounded-2xl shadow-lg overflow-hidden"
+          className="mb-20 bg-white/70 backdrop-blur-md rounded-3xl shadow-2xl border border-white/30 overflow-hidden"
         >
           <div className="grid md:grid-cols-2 gap-0">
             <motion.div
@@ -212,7 +217,7 @@ export default function Features() {
                   }
                 }
               }}
-              className="p-8 lg:p-12 bg-gradient-to-br from-green-50 to-blue-50"
+              className="p-8 lg:p-12 bg-gradient-to-br from-green-50/80 via-blue-50/60 to-emerald-50/80 backdrop-blur-sm"
             >
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Complete Management Dashboard
@@ -325,7 +330,7 @@ export default function Features() {
                   }
                 }
               }}
-              className="p-8 lg:p-12 bg-gradient-to-br from-blue-50 to-purple-50 order-1 md:order-2"
+              className="p-8 lg:p-12 bg-gradient-to-br from-blue-50/80 via-purple-50/60 to-indigo-50/80 backdrop-blur-sm order-1 md:order-2"
             >
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Dedicated Driver Experience
@@ -390,7 +395,7 @@ export default function Features() {
                   }
                 }
               }}
-              className="p-8 lg:p-12 bg-gradient-to-br from-purple-50 to-pink-50"
+              className="p-8 lg:p-12 bg-gradient-to-br from-purple-50/80 via-pink-50/60 to-violet-50/80 backdrop-blur-sm"
             >
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Advanced Location Analytics
@@ -494,7 +499,7 @@ export default function Features() {
             hidden: { opacity: 0 },
             visible: { opacity: 1 }
           }}
-          className="mt-20 bg-white rounded-2xl shadow-lg p-8 lg:p-12"
+          className="mt-20 bg-white/70 backdrop-blur-md rounded-3xl shadow-2xl border border-white/30 p-8 lg:p-12"
         >
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div

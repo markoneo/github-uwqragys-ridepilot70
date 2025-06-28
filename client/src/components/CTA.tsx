@@ -91,11 +91,16 @@ export default function CTA() {
   }, []);
 
   return (
-    <div className="relative bg-gradient-to-br from-gray-900 via-green-900 to-blue-900 py-24 sm:py-32 overflow-hidden">
-      {/* Animated background elements */}
+    <div className="relative min-h-[95vh] py-24 sm:py-32 overflow-hidden bg-gradient-to-br from-gray-900 via-green-900 to-blue-900">
+      {/* Enhanced animated background elements */}
       <motion.div 
-        className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none"
+        className="absolute inset-0 overflow-hidden pointer-events-none"
       >
+        <div className="absolute -top-[40%] -left-[15%] w-[60%] h-[60%] rounded-full bg-gradient-to-r from-green-400/30 to-emerald-400/30 blur-3xl opacity-60 animate-blob"></div>
+        <div className="absolute -bottom-[30%] right-[0%] w-[50%] h-[60%] rounded-full bg-gradient-to-l from-blue-400/30 to-cyan-400/30 blur-3xl opacity-60 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[20%] right-[20%] w-[30%] h-[30%] rounded-full bg-gradient-to-br from-purple-400/30 to-pink-400/30 blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
+        
+        {/* Interactive elements */}
         <motion.div 
           className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-green-400/20 mix-blend-multiply filter blur-3xl"
           animate={{
@@ -112,6 +117,11 @@ export default function CTA() {
           }}
           transition={{ type: "spring", damping: 50, stiffness: 100 }}
         />
+        
+        {/* Geometric shapes */}
+        <div className="absolute top-[15%] left-[10%] w-20 h-20 border border-green-300/30 rounded-full opacity-40 animate-pulse"></div>
+        <div className="absolute bottom-[30%] right-[15%] w-16 h-16 bg-blue-300/30 rounded-lg opacity-40 transform rotate-45 animate-bounce"></div>
+        <div className="absolute top-[60%] left-[5%] w-12 h-12 bg-purple-300/30 rounded-full opacity-50 animate-ping"></div>
       </motion.div>
       
       <motion.div
@@ -221,7 +231,7 @@ export default function CTA() {
         {/* Social proof / testimonial */}
         <motion.div
           variants={itemVariants}
-          className="mt-20 bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-3xl mx-auto"
+          className="mt-20 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 shadow-2xl p-8 max-w-3xl mx-auto"
         >
           <blockquote className="text-lg text-gray-200 italic mb-4">
             "RidePilot transformed how we manage our transportation business. The intuitive interface and powerful analytics have helped us increase efficiency by 40% and improve customer satisfaction significantly."

@@ -38,9 +38,14 @@ export default function Footer() {
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       variants={containerVariants}
-      className="bg-white border-t border-gray-100"
+      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50 border-t border-white/20 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-green-100/30 to-emerald-100/30 rounded-full blur-3xl opacity-40"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-l from-blue-100/30 to-cyan-100/30 rounded-full blur-3xl opacity-40"></div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <motion.div variants={itemVariants}>
             <div className="flex items-center">
