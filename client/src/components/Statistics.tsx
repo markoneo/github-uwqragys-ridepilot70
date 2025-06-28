@@ -2,22 +2,24 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Activity, Building2, CheckCircle2, Timer, Users, TrendingUp, Calendar, ArrowLeft, FileText, DollarSign, Award, Trophy, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement } from 'chart.js';
 
 // Only load Chart.js on client-side as needed
 let Pie: any = () => <div className="h-64 flex items-center justify-center text-gray-500">Loading chart...</div>;
+let Bar: any = () => <div className="h-64 flex items-center justify-center text-gray-500">Loading chart...</div>;
 
 // Dynamically import Chart.js components to prevent mobile issues
 if (typeof window !== 'undefined') {
   import('react-chartjs-2').then(module => {
     Pie = module.Pie;
+    Bar = module.Bar;
   }).catch(err => {
     console.error("Could not load Chart.js components:", err);
   });
   
   // Register required components only if in browser
   try {
-    ChartJS.register(ArcElement, Tooltip, Legend, Title);
+    ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement);
   } catch (err) {
     console.warn("Could not register Chart.js components:", err);
   }
@@ -55,6 +57,8 @@ export default function Statistics() {
   const [allTimeBestDay, setAllTimeBestDay] = useState<{ date: string; earnings: number; dayName: string } | null>(null);
   const [pieChartData, setPieChartData] = useState<any>(null);
   const [chartError, setChartError] = useState<boolean>(false);
+  const [hourlyData, setHourlyData] = useState<any>(null);
+  const [weeklyData, setWeeklyData] = useState<any>(null);
 
   const getCompanyName = (id: string) => {
     const company = companies.find(c => c.id === id);
@@ -159,6 +163,60 @@ export default function Statistics() {
           }],
         });
       }
+
+      // Calculate hourly project creation patterns
+      const hourlyStats = new Array(24).fill(0);
+      projects.forEach(project => {
+        const hour = parseInt(project.time.split(':')[0]);
+        hourlyStats[hour]++;
+      });
+
+      setHourlyData({
+        labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+        datasets: [{
+          label: 'Projects Created',
+          data: hourlyStats,
+          backgroundColor: 'rgba(59, 130, 246, 0.6)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1,
+        }]
+      });
+
+      // Calculate weekly project creation patterns
+      const weeklyStats = new Array(7).fill(0);
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      
+      projects.forEach(project => {
+        const dayOfWeek = new Date(project.date).getDay();
+        weeklyStats[dayOfWeek]++;
+      });
+
+      setWeeklyData({
+        labels: dayNames,
+        datasets: [{
+          label: 'Projects Created',
+          data: weeklyStats,
+          backgroundColor: [
+            'rgba(239, 68, 68, 0.6)',   // Sunday - Red
+            'rgba(59, 130, 246, 0.6)',  // Monday - Blue
+            'rgba(34, 197, 94, 0.6)',   // Tuesday - Green
+            'rgba(251, 191, 36, 0.6)',  // Wednesday - Yellow
+            'rgba(168, 85, 247, 0.6)',  // Thursday - Purple
+            'rgba(20, 184, 166, 0.6)',  // Friday - Teal
+            'rgba(245, 101, 101, 0.6)', // Saturday - Light Red
+          ],
+          borderColor: [
+            'rgba(239, 68, 68, 1)',
+            'rgba(59, 130, 246, 1)',
+            'rgba(34, 197, 94, 1)',
+            'rgba(251, 191, 36, 1)',
+            'rgba(168, 85, 247, 1)',
+            'rgba(20, 184, 166, 1)',
+            'rgba(245, 101, 101, 1)',
+          ],
+          borderWidth: 1,
+        }]
+      });
     } catch (error) {
       console.error("Error calculating statistics:", error);
       setChartError(true);
@@ -199,6 +257,44 @@ export default function Statistics() {
     },
     animation: {
       duration: 500 // Shorter animations for mobile
+    }
+  };
+
+  // Bar chart options for hourly and weekly data
+  const barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true,
+        displayColors: false,
+        callbacks: {
+          label: function(context: any) {
+            return `${context.parsed.y} projects`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 10
+          }
+        }
+      }
+    },
+    animation: {
+      duration: 500
     }
   };
 
@@ -564,6 +660,62 @@ export default function Statistics() {
           </div>
 
           
+        </div>
+
+        {/* Time Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mt-8">
+          {/* Hourly Project Creation */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
+              <Clock className="w-5 h-5 mr-2 text-blue-500" />
+              Projects by Hour of Day
+            </h3>
+            {hourlyData && !chartError ? (
+              <div className="h-64 sm:h-72">
+                <Bar data={hourlyData} options={barChartOptions} />
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center">
+                <p className="text-gray-500 text-sm">No hourly data available</p>
+              </div>
+            )}
+            <div className="mt-4 text-xs text-gray-500">
+              <p>Peak hours: {(() => {
+                if (!hourlyData) return 'No data';
+                const maxCount = Math.max(...hourlyData.datasets[0].data);
+                const peakHours = hourlyData.datasets[0].data
+                  .map((count: number, index: number) => count === maxCount ? index : -1)
+                  .filter((hour: number) => hour !== -1)
+                  .map((hour: number) => `${hour.toString().padStart(2, '0')}:00`);
+                return peakHours.join(', ');
+              })()}</p>
+            </div>
+          </div>
+
+          {/* Weekly Project Creation */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
+              <Calendar className="w-5 h-5 mr-2 text-purple-500" />
+              Projects by Day of Week
+            </h3>
+            {weeklyData && !chartError ? (
+              <div className="h-64 sm:h-72">
+                <Bar data={weeklyData} options={barChartOptions} />
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center">
+                <p className="text-gray-500 text-sm">No weekly data available</p>
+              </div>
+            )}
+            <div className="mt-4 text-xs text-gray-500">
+              <p>Busiest day: {(() => {
+                if (!weeklyData) return 'No data';
+                const maxCount = Math.max(...weeklyData.datasets[0].data);
+                const maxIndex = weeklyData.datasets[0].data.indexOf(maxCount);
+                return `${weeklyData.labels[maxIndex]} (${maxCount} projects)`;
+              })()}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
