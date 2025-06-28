@@ -373,18 +373,9 @@ const ProjectCard = React.memo(({
                 onClick={onStart}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-white shadow-lg hover:shadow-xl transition-all duration-200 ${getButtonColorClass()}`}
               >
-                {isStarted ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5" />
-                    Complete Trip
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-5 h-5" />
-                    Start Trip
-                    <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </>
-                )}
+                <CheckCircle2 className="w-5 h-5" />
+                Complete Trip
+                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </motion.button>
             )}
             
