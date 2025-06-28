@@ -928,7 +928,16 @@ export default function Statistics() {
           </div>
         </div>
 
-        
+        {/* Geographic Heat Map Section */}
+        <div className="mt-8">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <MapPin className="w-5 h-5 mr-2 text-purple-500" />
+              Geographic Heat Map - Popular Locations with Earnings
+            </h3>
+            <LocationAnalytics />
+          </div>
+        </div>
 
         {/* Demand Prediction Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mt-8">
