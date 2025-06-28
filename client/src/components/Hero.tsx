@@ -362,18 +362,21 @@ export default function Hero() {
 
         </div>
       
-      {/* Enhanced scroll indicator - positioned outside hero section for visibility */}
+      {/* Enhanced scroll indicator - only visible when at top of page */}
       <motion.div 
         className="hidden md:flex fixed bottom-8 left-1/2 transform -translate-x-1/2 items-center justify-center flex-col z-50"
         initial={{ opacity: 0 }}
         animate={{ 
-          opacity: [0, 1, 0.8, 1],
-          y: [0, -8, 0, 8, 0]
+          opacity: scrollY < 100 ? [0, 1, 0.8, 1] : 0,
+          y: scrollY < 100 ? [0, -8, 0, 8, 0] : 0
         }}
         transition={{
-          duration: 3,
-          repeat: Infinity,
+          duration: scrollY < 100 ? 3 : 0.3,
+          repeat: scrollY < 100 ? Infinity : 0,
           repeatType: "loop"
+        }}
+        style={{
+          display: scrollY > 200 ? 'none' : 'flex'
         }}
       >
         <p className="text-lg text-gray-800 mb-6 font-bold bg-white/95 backdrop-blur-md px-8 py-3 rounded-full shadow-xl border border-gray-200">
