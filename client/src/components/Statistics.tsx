@@ -563,52 +563,7 @@ export default function Statistics() {
             </div>
           </div>
 
-          {/* Project Timeline */}
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
-            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-orange-500" />
-              Project Timeline
-            </h3>
-            <div className="space-y-3 sm:space-y-4">
-              {Array.from({ length: 5 }).map((_, index) => {
-                const date = new Date();
-                date.setDate(date.getDate() - index);
-                const dayProjects = projects.filter(p => 
-                  new Date(p.date).toDateString() === date.toDateString()
-                );
-                
-                return (
-                  <div key={date.toISOString()} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
-                      {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      {dayProjects.length > 0 ? (
-                        <>
-                          <div className="flex -space-x-2">
-                            {dayProjects.slice(0, 3).map((project, i) => (
-                              <div
-                                key={project.id}
-                                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-xs font-medium text-blue-600"
-                                title={project.clientName}
-                              >
-                                {project.clientName.charAt(0)}
-                              </div>
-                            ))}
-                          </div>
-                          {dayProjects.length > 3 && (
-                            <span className="text-xs sm:text-sm text-gray-500">+{dayProjects.length - 3}</span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-xs text-gray-400">No projects</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
