@@ -362,41 +362,6 @@ export default function Hero() {
 
         </div>
       
-      {/* Enhanced scroll indicator - only visible when at top of page */}
-      <motion.div 
-        className="hidden md:flex fixed bottom-8 left-1/2 transform -translate-x-1/2 items-center justify-center flex-col z-50"
-        initial={{ opacity: 0 }}
-        animate={{ 
-          opacity: scrollY < 100 ? [0, 1, 0.8, 1] : 0,
-          y: scrollY < 100 ? [0, -8, 0, 8, 0] : 0
-        }}
-        transition={{
-          duration: scrollY < 100 ? 3 : 0.3,
-          repeat: scrollY < 100 ? Infinity : 0,
-          repeatType: "loop"
-        }}
-        style={{
-          display: scrollY > 200 ? 'none' : 'flex'
-        }}
-      >
-        <p className="text-lg text-gray-800 mb-6 font-bold bg-white/95 backdrop-blur-md px-8 py-3 rounded-full shadow-xl border border-gray-200">
-          Scroll to explore
-        </p>
-        <div className="w-10 h-16 border-3 border-gray-600 rounded-full flex items-start justify-center bg-white/80 backdrop-blur-sm shadow-2xl">
-          <motion.div 
-            className="w-3 h-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mt-4 shadow-md"
-            animate={{
-              y: [0, 28, 0]
-            }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        </div>
-      </motion.div>
-      
       {/* Login Modal */}
       <Modal
         isOpen={showLoginModal}
