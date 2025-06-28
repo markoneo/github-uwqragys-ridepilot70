@@ -299,9 +299,9 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Enhanced floating elements with glassmorphism */}
+              {/* Enhanced floating elements with glassmorphism - repositioned to avoid overlap */}
               <motion.div 
-                className="absolute -top-6 -right-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[220px] border border-white/20"
+                className="absolute -top-12 -right-12 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[220px] border border-white/20"
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ 
                   opacity: 1, 
@@ -330,7 +330,7 @@ export default function Hero() {
               </motion.div>
               
               <motion.div 
-                className="absolute -bottom-6 -left-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[260px] border border-white/20"
+                className="absolute -bottom-12 -left-12 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[260px] border border-white/20"
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ 
                   opacity: 1, 
