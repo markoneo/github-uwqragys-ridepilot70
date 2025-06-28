@@ -73,11 +73,13 @@ const ProjectListItem: React.FC<ListItemProps> = ({
   return (
     <motion.div
       layout
-      className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-sm mb-3"
+      className="bg-white rounded-2xl border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-lg mb-4 shadow-sm"
       style={{ 
         borderLeftColor: colorTheme, 
         borderLeftWidth: '4px',
-        boxShadow: isUrgent ? '0 0 0 2px rgba(239, 68, 68, 0.2)' : undefined
+        borderTopLeftRadius: '16px',
+        borderBottomLeftRadius: '16px',
+        boxShadow: isUrgent ? '0 4px 20px rgba(239, 68, 68, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.2)' : '0 2px 12px rgba(0, 0, 0, 0.08)'
       }}
     >
       {/* Main List Item */}
@@ -108,7 +110,7 @@ const ProjectListItem: React.FC<ListItemProps> = ({
                     Urgent
                   </span>
                 )}
-                <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColors[project.status as keyof typeof statusColors] || statusColors.pending}`}>
+                <span className={`px-3 py-1 text-xs font-medium rounded-full border shadow-sm ${statusColors[project.status as keyof typeof statusColors] || statusColors.pending}`}>
                   {project.status}
                 </span>
               </div>
@@ -148,7 +150,7 @@ const ProjectListItem: React.FC<ListItemProps> = ({
               <div className="font-medium text-gray-900">
                 ${project.price.toFixed(2)}
               </div>
-              <span className={`px-2 py-1 text-xs font-medium rounded ${paymentColors[project.paymentStatus as keyof typeof paymentColors] || paymentColors.pending}`}>
+              <span className={`px-3 py-1 text-xs font-medium rounded-lg shadow-sm ${paymentColors[project.paymentStatus as keyof typeof paymentColors] || paymentColors.pending}`}>
                 {project.paymentStatus}
               </span>
             </div>
@@ -166,7 +168,7 @@ const ProjectListItem: React.FC<ListItemProps> = ({
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="border-t border-gray-100 p-4 bg-gray-50">
+            <div className="border-t border-gray-100 p-4 bg-gray-50 rounded-b-2xl">
               {/* Detailed Information Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 {/* Trip Details */}
@@ -247,7 +249,7 @@ const ProjectListItem: React.FC<ListItemProps> = ({
               {project.description && (
                 <div className="mb-4">
                   <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                  <p className="text-sm text-gray-700 bg-white p-3 rounded border">
+                  <p className="text-sm text-gray-700 bg-white p-3 rounded-xl border">
                     {project.description}
                   </p>
                 </div>
@@ -281,14 +283,14 @@ const ProjectListItem: React.FC<ListItemProps> = ({
               <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-200">
                 <button
                   onClick={(e) => { e.stopPropagation(); onAction('view'); }}
-                  className="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                  className="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors shadow-sm hover:shadow-md"
                 >
                   <Eye size={14} className="mr-1" />
                   View
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); onAction('edit'); }}
-                  className="flex items-center px-3 py-1.5 text-sm bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors"
+                  className="flex items-center px-3 py-1.5 text-sm bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors shadow-sm hover:shadow-md"
                 >
                   <Edit size={14} className="mr-1" />
                   Edit
@@ -296,7 +298,7 @@ const ProjectListItem: React.FC<ListItemProps> = ({
                 {project.status === 'active' && (
                   <button
                     onClick={(e) => { e.stopPropagation(); onAction('start'); }}
-                    className="flex items-center px-3 py-1.5 text-sm bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+                    className="flex items-center px-3 py-1.5 text-sm bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors shadow-sm hover:shadow-md"
                   >
                     <Play size={14} className="mr-1" />
                     Start Trip
@@ -304,14 +306,14 @@ const ProjectListItem: React.FC<ListItemProps> = ({
                 )}
                 <button
                   onClick={(e) => { e.stopPropagation(); onAction('voucher'); }}
-                  className="flex items-center px-3 py-1.5 text-sm bg-orange-50 text-orange-700 rounded hover:bg-orange-100 transition-colors"
+                  className="flex items-center px-3 py-1.5 text-sm bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors shadow-sm hover:shadow-md"
                 >
                   <Receipt size={14} className="mr-1" />
                   Voucher
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); onAction('delete'); }}
-                  className="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors"
+                  className="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors shadow-sm hover:shadow-md"
                 >
                   <Trash2 size={14} className="mr-1" />
                   Delete
@@ -450,7 +452,7 @@ export default function ProjectListView({
   return (
     <div className="space-y-6">
       {/* List Controls */}
-      <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+      <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl shadow-sm">
         <div className="text-sm text-gray-600">
           {projects.length} project{projects.length !== 1 ? 's' : ''} found across {groupedProjects.length} date{groupedProjects.length !== 1 ? 's' : ''}
         </div>
