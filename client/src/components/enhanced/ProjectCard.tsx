@@ -325,7 +325,31 @@ const ProjectCard = React.memo(({
         {/* Actions Section - Clear separation */}
         <div className="p-4 bg-slate-50 border-t border-slate-100">
           <div className="flex items-center justify-between">
-            {/* Quick Actions with Labels */}
+            {/* Left Side - Primary Action */}
+            <div className="flex items-center gap-3">
+              {onStart && project.status === 'active' && (
+                <motion.button
+                  whileHover={{ scale: 1.02, x: 2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={onStart}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-white shadow-lg hover:shadow-xl transition-all duration-200 ${getButtonColorClass()}`}
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  Complete Trip
+                  <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
+              )}
+              
+              {/* Completed Trip Badge */}
+              {project.status === 'completed' && (
+                <div className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-emerald-700 bg-emerald-100 border border-emerald-200">
+                  <CheckCircle2 className="w-5 h-5" />
+                  Trip Completed
+                </div>
+              )}
+            </div>
+            
+            {/* Right Side - Quick Actions with Labels */}
             <div className="flex items-center gap-3">
               <button
                 onClick={onView}
@@ -364,28 +388,6 @@ const ProjectCard = React.memo(({
                 <span className="text-sm font-medium">Delete</span>
               </button>
             </div>
-            
-            {/* Primary Action */}
-            {onStart && project.status === 'active' && (
-              <motion.button
-                whileHover={{ scale: 1.02, x: 2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onStart}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-white shadow-lg hover:shadow-xl transition-all duration-200 ${getButtonColorClass()}`}
-              >
-                <CheckCircle2 className="w-5 h-5" />
-                Complete Trip
-                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </motion.button>
-            )}
-            
-            {/* Completed Trip Badge */}
-            {project.status === 'completed' && (
-              <div className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-emerald-700 bg-emerald-100 border border-emerald-200">
-                <CheckCircle2 className="w-5 h-5" />
-                Trip Completed
-              </div>
-            )}
           </div>
         </div>
       </div>
