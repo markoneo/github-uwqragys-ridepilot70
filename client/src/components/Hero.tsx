@@ -360,9 +360,9 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Enhanced scroll indicator - moved to more visible position */}
+        {/* Enhanced scroll indicator - positioned well below hero section */}
         <motion.div 
-          className="hidden md:flex absolute bottom-[-80px] left-1/2 transform -translate-x-1/2 items-center justify-center flex-col z-20"
+          className="hidden md:flex absolute bottom-[-140px] left-1/2 transform -translate-x-1/2 items-center justify-center flex-col z-30"
           initial={{ opacity: 0 }}
           animate={{ 
             opacity: [0, 1, 0.8, 1],
@@ -374,14 +374,14 @@ export default function Hero() {
             repeatType: "loop"
           }}
         >
-          <p className="text-base text-gray-700 mb-4 font-semibold bg-white/90 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/20">
+          <p className="text-lg text-gray-800 mb-6 font-bold bg-white/95 backdrop-blur-md px-8 py-3 rounded-full shadow-xl border border-gray-200">
             Scroll to explore
           </p>
-          <div className="w-8 h-14 border-2 border-gray-500 rounded-full flex items-start justify-center bg-white/70 backdrop-blur-sm shadow-xl">
+          <div className="w-10 h-16 border-3 border-gray-600 rounded-full flex items-start justify-center bg-white/80 backdrop-blur-sm shadow-2xl">
             <motion.div 
-              className="w-2.5 h-2.5 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mt-3 shadow-sm"
+              className="w-3 h-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mt-4 shadow-md"
               animate={{
-                y: [0, 24, 0]
+                y: [0, 28, 0]
               }}
               transition={{
                 duration: 2.5,
