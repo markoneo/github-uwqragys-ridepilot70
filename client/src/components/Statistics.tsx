@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Activity, Building2, CheckCircle2, Timer, Users, TrendingUp, Calendar, ArrowLeft, FileText, DollarSign, Award, Trophy, Star } from 'lucide-react';
+import { Activity, Building2, CheckCircle2, Timer, Users, TrendingUp, Calendar, ArrowLeft, FileText, DollarSign, Award, Trophy, Star, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement } from 'chart.js';
