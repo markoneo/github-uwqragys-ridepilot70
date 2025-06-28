@@ -119,11 +119,17 @@ export default function Hero() {
   ];
 
   return (
-    <div className="relative min-h-[90vh] pt-24 pb-16 sm:pt-32 sm:pb-24 overflow-hidden">
-      {/* Decorative background elements */}
+    <div className="relative min-h-[95vh] pt-24 pb-16 sm:pt-32 sm:pb-24 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Enhanced decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[30%] -left-[10%] w-[50%] h-[50%] rounded-full bg-green-50 blur-3xl opacity-30"></div>
-        <div className="absolute -bottom-[20%] right-[5%] w-[40%] h-[50%] rounded-full bg-blue-50 blur-3xl opacity-30"></div>
+        <div className="absolute -top-[40%] -left-[15%] w-[60%] h-[60%] rounded-full bg-gradient-to-r from-green-100 to-emerald-100 blur-3xl opacity-40 animate-blob"></div>
+        <div className="absolute -bottom-[30%] right-[0%] w-[50%] h-[60%] rounded-full bg-gradient-to-l from-blue-100 to-cyan-100 blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[20%] right-[20%] w-[30%] h-[30%] rounded-full bg-gradient-to-br from-purple-100 to-pink-100 blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        
+        {/* Geometric shapes */}
+        <div className="absolute top-[15%] left-[10%] w-20 h-20 border border-green-200 rounded-full opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-[30%] right-[15%] w-16 h-16 bg-blue-200 rounded-lg opacity-20 transform rotate-45 animate-bounce"></div>
+        <div className="absolute top-[60%] left-[5%] w-12 h-12 bg-purple-200 rounded-full opacity-25 animate-ping"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -142,35 +148,45 @@ export default function Hero() {
               className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight"
             >
               Simplify Dispatching and{' '}
-              <span className="text-green-500">Manage Rides Effortlessly</span>
+              <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent animate-pulse">
+                Manage Rides Effortlessly
+              </span>
             </motion.h1>
             
             <motion.p 
               variants={paragraphVariants}
-              className="mt-6 text-xl text-gray-600"
+              className="mt-6 text-xl text-gray-700 leading-relaxed max-w-2xl"
             >
               Never miss any rides. Keep your bookings, drivers, and clients perfectly organized with our comprehensive transportation management platform.
+              <span className="block mt-2 text-lg text-gray-600 font-medium">
+                ✨ Trusted by 500+ transportation companies worldwide
+              </span>
             </motion.p>
 
-            {/* Key Features List */}
+            {/* Enhanced Key Features List */}
             <motion.div
               variants={paragraphVariants}
-              className="mt-8 grid grid-cols-2 gap-4"
+              className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
             >
               {[
-                { icon: BarChart3, text: "Real-time Analytics" },
-                { icon: Users, text: "Driver Management" },
-                { icon: MapPin, text: "Location Insights" },
-                { icon: Shield, text: "Secure & Reliable" }
+                { icon: BarChart3, text: "Real-time Analytics", color: "from-blue-500 to-cyan-500" },
+                { icon: Users, text: "Driver Management", color: "from-purple-500 to-pink-500" },
+                { icon: MapPin, text: "Location Insights", color: "from-green-500 to-emerald-500" },
+                { icon: Shield, text: "Secure & Reliable", color: "from-orange-500 to-red-500" }
               ].map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <div key={index} className="flex items-center space-x-2">
-                    <div className="bg-green-100 p-2 rounded-lg">
-                      <Icon className="w-4 h-4 text-green-600" />
+                  <motion.div 
+                    key={index} 
+                    className="flex items-center space-x-3 p-3 rounded-xl bg-white/60 backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
+                    whileHover={{ y: -2 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className={`bg-gradient-to-r ${feature.color} p-2.5 rounded-lg shadow-lg`}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
-                    <span className="text-gray-700 text-sm font-medium">{feature.text}</span>
-                  </div>
+                    <span className="text-gray-800 text-sm font-semibold">{feature.text}</span>
+                  </motion.div>
                 );
               })}
             </motion.div>
@@ -186,22 +202,28 @@ export default function Hero() {
             ) : (
               <motion.div 
                 variants={buttonVariants}
-                className="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4"
+                className="mt-10 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6"
               >
-                <button
+                <motion.button
                   onClick={() => setShowSignUpModal(true)}
-                  className="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-green-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center"
+                  className="relative bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-2xl text-lg font-semibold shadow-2xl hover:shadow-green-500/25 transition-all duration-300 flex items-center justify-center group overflow-hidden"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <Play className="w-5 h-5 mr-2" />
-                  Get Started Free
-                </button>
-                <Link
-                  to="/contact"
-                  className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg text-lg font-medium hover:bg-gray-50 transition-all duration-300 flex items-center justify-center"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Suggest Features
-                </Link>
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <Play className="w-6 h-6 mr-3 relative z-10 group-hover:animate-pulse" />
+                  <span className="relative z-10">Get Started Free</span>
+                  <div className="absolute top-0 right-0 w-8 h-8 bg-white/20 rounded-full transform translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                </motion.button>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    to="/contact"
+                    className="bg-white/80 backdrop-blur-sm border-2 border-gray-200 text-gray-700 px-10 py-4 rounded-2xl text-lg font-semibold hover:bg-white hover:border-gray-300 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl group"
+                  >
+                    <MessageCircle className="w-6 h-6 mr-3 group-hover:animate-bounce" />
+                    Suggest Features
+                  </Link>
+                </motion.div>
               </motion.div>
             )}
           </motion.div>
@@ -277,43 +299,60 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Fixed floating elements - repositioned to avoid overlap */}
+              {/* Enhanced floating elements with glassmorphism */}
               <motion.div 
-                className="absolute -top-4 -right-4 bg-white rounded-lg shadow-xl p-4 z-40 hidden sm:block max-w-[200px]"
-                initial={{ opacity: 0, y: 20 }}
+                className="absolute -top-6 -right-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[220px] border border-white/20"
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ 
                   opacity: 1, 
-                  y: 0,
+                  y: [0, -5, 0],
+                  scale: 1
                 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
+                transition={{ 
+                  delay: 0.6, 
+                  duration: 0.8,
+                  y: { repeat: Infinity, duration: 3, ease: "easeInOut" }
+                }}
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Check className="w-5 h-5 text-green-600" />
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <Check className="w-6 h-6 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900">99 Locations</p>
-                    <p className="text-xs text-gray-500">90 Total Trips</p>
+                    <p className="text-sm font-bold text-gray-900">99 Locations</p>
+                    <p className="text-xs text-gray-600 font-medium">90 Total Trips</p>
+                    <div className="flex items-center mt-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-1"></div>
+                      <span className="text-xs text-green-600 font-semibold">Live</span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
               
               <motion.div 
-                className="absolute -bottom-4 -left-4 bg-white rounded-lg shadow-xl p-4 z-40 hidden sm:block max-w-[240px]"
-                initial={{ opacity: 0, y: 20 }}
+                className="absolute -bottom-6 -left-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[260px] border border-white/20"
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ 
                   opacity: 1, 
-                  y: 0,
+                  y: [0, 5, 0],
+                  scale: 1
                 }}
-                transition={{ delay: 0.9, duration: 0.8 }}
+                transition={{ 
+                  delay: 0.9, 
+                  duration: 0.8,
+                  y: { repeat: Infinity, duration: 4, ease: "easeInOut" }
+                }}
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-blue-600" />
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <MapPin className="w-6 h-6 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900">Top Pickup: Trieste Port</p>
-                    <p className="text-xs text-gray-500">Top Dropoff: Venice</p>
+                    <p className="text-sm font-bold text-gray-900">Top Pickup: Trieste Port</p>
+                    <p className="text-xs text-gray-600 font-medium">Top Dropoff: Venice</p>
+                    <div className="flex items-center mt-1 space-x-1">
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">Trending</span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -321,29 +360,31 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Enhanced scroll indicator */}
         <motion.div 
-          className="hidden md:flex absolute bottom-8 left-1/2 transform -translate-x-1/2 items-center justify-center flex-col"
+          className="hidden md:flex absolute bottom-8 left-1/2 transform -translate-x-1/2 items-center justify-center flex-col z-20"
           initial={{ opacity: 0 }}
           animate={{ 
-            opacity: [0, 1, 0],
-            y: [0, 10, 0]
+            opacity: [0, 1, 0.7, 1],
+            y: [0, -5, 0, 5, 0]
           }}
           transition={{
-            duration: 2,
+            duration: 3,
             repeat: Infinity,
             repeatType: "loop"
           }}
         >
-          <p className="text-sm text-gray-500 mb-2">Scroll to explore</p>
-          <div className="w-6 h-10 border-2 border-gray-300 rounded-full flex items-start justify-center">
+          <p className="text-sm text-gray-600 mb-3 font-medium bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full">
+            Scroll to explore
+          </p>
+          <div className="w-7 h-12 border-2 border-gray-400 rounded-full flex items-start justify-center bg-white/50 backdrop-blur-sm shadow-lg">
             <motion.div 
-              className="w-1.5 h-1.5 bg-gray-500 rounded-full mt-2"
+              className="w-2 h-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mt-2"
               animate={{
-                y: [0, 15, 0]
+                y: [0, 20, 0]
               }}
               transition={{
-                duration: 2,
+                duration: 2.5,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
