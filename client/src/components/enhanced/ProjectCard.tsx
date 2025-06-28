@@ -349,8 +349,8 @@ const ProjectCard = React.memo(({
               )}
             </div>
             
-            {/* Right Side - Quick Actions with Labels */}
-            <div className="flex items-center gap-3">
+            {/* Secondary Actions - Positioned closer to primary action */}
+            <div className="flex items-center gap-2 ml-4">
               <button
                 onClick={onView}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors"
