@@ -360,13 +360,13 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Enhanced scroll indicator */}
+        {/* Enhanced scroll indicator - moved to more visible position */}
         <motion.div 
-          className="hidden md:flex absolute bottom-8 left-1/2 transform -translate-x-1/2 items-center justify-center flex-col z-20"
+          className="hidden md:flex absolute bottom-[-80px] left-1/2 transform -translate-x-1/2 items-center justify-center flex-col z-20"
           initial={{ opacity: 0 }}
           animate={{ 
-            opacity: [0, 1, 0.7, 1],
-            y: [0, -5, 0, 5, 0]
+            opacity: [0, 1, 0.8, 1],
+            y: [0, -8, 0, 8, 0]
           }}
           transition={{
             duration: 3,
@@ -374,14 +374,14 @@ export default function Hero() {
             repeatType: "loop"
           }}
         >
-          <p className="text-sm text-gray-600 mb-3 font-medium bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full">
+          <p className="text-base text-gray-700 mb-4 font-semibold bg-white/90 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/20">
             Scroll to explore
           </p>
-          <div className="w-7 h-12 border-2 border-gray-400 rounded-full flex items-start justify-center bg-white/50 backdrop-blur-sm shadow-lg">
+          <div className="w-8 h-14 border-2 border-gray-500 rounded-full flex items-start justify-center bg-white/70 backdrop-blur-sm shadow-xl">
             <motion.div 
-              className="w-2 h-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mt-2"
+              className="w-2.5 h-2.5 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mt-3 shadow-sm"
               animate={{
-                y: [0, 20, 0]
+                y: [0, 24, 0]
               }}
               transition={{
                 duration: 2.5,
