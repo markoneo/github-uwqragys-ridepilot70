@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Activity, Building2, CheckCircle2, Timer, Users, TrendingUp, Calendar, ArrowLeft, FileText, DollarSign, Award, Trophy, Star, Clock } from 'lucide-react';
+import { Activity, Building2, CheckCircle2, Timer, Users, TrendingUp, Calendar, ArrowLeft, FileText, DollarSign, Award, Trophy, Star, Clock, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement, LineElement, PointElement } from 'chart.js';
+import LocationAnalytics from './LocationAnalytics';
 
 // Only load Chart.js on client-side as needed
 let Pie: any = () => <div className="h-64 flex items-center justify-center text-gray-500">Loading chart...</div>;
@@ -19,7 +20,7 @@ if (typeof window !== 'undefined') {
   
   // Register required components only if in browser
   try {
-    ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement);
+    ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement, LineElement, PointElement);
   } catch (err) {
     console.warn("Could not register Chart.js components:", err);
   }
@@ -59,6 +60,8 @@ export default function Statistics() {
   const [chartError, setChartError] = useState<boolean>(false);
   const [hourlyData, setHourlyData] = useState<any>(null);
   const [weeklyData, setWeeklyData] = useState<any>(null);
+  const [growthTrends, setGrowthTrends] = useState<any>(null);
+  const [demandPrediction, setDemandPrediction] = useState<any>(null);
 
   const getCompanyName = (id: string) => {
     const company = companies.find(c => c.id === id);
@@ -217,6 +220,115 @@ export default function Statistics() {
           borderWidth: 1,
         }]
       });
+
+      // Calculate Growth Trends
+      const calculateGrowthTrends = () => {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+        
+        // Group projects by year-month
+        const monthlyData = projects.reduce((acc, project) => {
+          const date = new Date(project.date);
+          const yearMonth = `${date.getFullYear()}-${date.getMonth()}`;
+          const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+          
+          if (!acc[yearMonth]) {
+            acc[yearMonth] = { count: 0, revenue: 0, key };
+          }
+          acc[yearMonth].count++;
+          acc[yearMonth].revenue += project.price;
+          return acc;
+        }, {} as { [key: string]: { count: number; revenue: number; key: string } });
+
+        // Get last 12 months for comparison
+        const last12Months = [];
+        const last12MonthsLabels = [];
+        const previous12Months = [];
+        
+        for (let i = 11; i >= 0; i--) {
+          const date = new Date(currentYear, currentMonth - i, 1);
+          const yearMonth = `${date.getFullYear()}-${date.getMonth()}`;
+          const prevYearMonth = `${date.getFullYear() - 1}-${date.getMonth()}`;
+          const label = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+          
+          last12MonthsLabels.push(label);
+          last12Months.push(monthlyData[yearMonth]?.revenue || 0);
+          previous12Months.push(monthlyData[prevYearMonth]?.revenue || 0);
+        }
+
+        setGrowthTrends({
+          labels: last12MonthsLabels,
+          datasets: [
+            {
+              label: 'Current Year Revenue',
+              data: last12Months,
+              borderColor: 'rgba(34, 197, 94, 1)',
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              fill: true,
+              tension: 0.4,
+            },
+            {
+              label: 'Previous Year Revenue',
+              data: previous12Months,
+              borderColor: 'rgba(156, 163, 175, 1)',
+              backgroundColor: 'rgba(156, 163, 175, 0.1)',
+              fill: true,
+              tension: 0.4,
+              borderDash: [5, 5],
+            }
+          ]
+        });
+      };
+
+      // Calculate Demand Prediction
+      const calculateDemandPrediction = () => {
+        const hourlyDemand = new Array(24).fill(0);
+        const weeklyDemand = new Array(7).fill(0);
+        
+        projects.forEach(project => {
+          const date = new Date(project.date);
+          const hour = parseInt(project.time.split(':')[0]);
+          const dayOfWeek = date.getDay();
+          
+          hourlyDemand[hour]++;
+          weeklyDemand[dayOfWeek]++;
+        });
+
+        // Calculate predicted busy periods (above average + 1 standard deviation)
+        const avgHourly = hourlyDemand.reduce((a, b) => a + b, 0) / 24;
+        const stdDevHourly = Math.sqrt(hourlyDemand.reduce((acc, val) => acc + Math.pow(val - avgHourly, 2), 0) / 24);
+        const busyHourThreshold = avgHourly + stdDevHourly;
+
+        const avgWeekly = weeklyDemand.reduce((a, b) => a + b, 0) / 7;
+        const stdDevWeekly = Math.sqrt(weeklyDemand.reduce((acc, val) => acc + Math.pow(val - avgWeekly, 2), 0) / 7);
+        const busyDayThreshold = avgWeekly + stdDevWeekly;
+
+        const busyHours = hourlyDemand.map((demand, hour) => ({
+          hour,
+          demand,
+          isBusy: demand > busyHourThreshold,
+          intensity: Math.min((demand / busyHourThreshold) * 100, 100)
+        }));
+
+        const busyDays = weeklyDemand.map((demand, day) => ({
+          day: dayNames[day],
+          demand,
+          isBusy: demand > busyDayThreshold,
+          intensity: Math.min((demand / busyDayThreshold) * 100, 100)
+        }));
+
+        setDemandPrediction({
+          hourly: busyHours,
+          weekly: busyDays,
+          thresholds: {
+            hourly: busyHourThreshold,
+            weekly: busyDayThreshold
+          }
+        });
+      };
+
+      calculateGrowthTrends();
+      calculateDemandPrediction();
     } catch (error) {
       console.error("Error calculating statistics:", error);
       setChartError(true);
@@ -736,6 +848,196 @@ export default function Statistics() {
           </div>
 
           
+        </div>
+
+        {/* Growth Trends Section */}
+        <div className="grid grid-cols-1 gap-4 sm:gap-8 mt-8">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-green-500" />
+              Revenue Growth Trends - Year over Year Comparison
+            </h3>
+            {growthTrends && !chartError ? (
+              <div className="h-64 sm:h-80">
+                <Pie data={growthTrends} options={{
+                  ...barChartOptions,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        callback: function(value: any) {
+                          return '€' + value.toFixed(0);
+                        }
+                      }
+                    },
+                    x: {
+                      ticks: {
+                        font: {
+                          size: 10
+                        }
+                      }
+                    }
+                  },
+                  plugins: {
+                    legend: {
+                      display: true,
+                      position: 'top' as const
+                    },
+                    tooltip: {
+                      enabled: true,
+                      displayColors: true,
+                      callbacks: {
+                        label: function(context: any) {
+                          return `${context.dataset.label}: €${context.parsed.y.toFixed(2)}`;
+                        }
+                      }
+                    }
+                  }
+                }} />
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center">
+                <p className="text-gray-500 text-sm">No growth trend data available</p>
+              </div>
+            )}
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {(() => {
+                if (!growthTrends) return null;
+                const currentYearTotal = growthTrends.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
+                const previousYearTotal = growthTrends.datasets[1].data.reduce((a: number, b: number) => a + b, 0);
+                const growth = previousYearTotal > 0 ? ((currentYearTotal - previousYearTotal) / previousYearTotal * 100) : 0;
+                
+                return (
+                  <>
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-600">Year-over-Year Growth</p>
+                      <p className={`text-lg font-bold ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {growth >= 0 ? '+' : ''}{growth.toFixed(1)}%
+                      </p>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-600">Revenue Difference</p>
+                      <p className={`text-lg font-bold ${currentYearTotal >= previousYearTotal ? 'text-green-600' : 'text-red-600'}`}>
+                        €{Math.abs(currentYearTotal - previousYearTotal).toFixed(0)}
+                      </p>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+
+        {/* Geographic Heat Map Section */}
+        <div className="mt-8">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <MapPin className="w-5 h-5 mr-2 text-purple-500" />
+              Geographic Heat Map - Popular Locations with Earnings
+            </h3>
+            <LocationAnalytics />
+          </div>
+        </div>
+
+        {/* Demand Prediction Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mt-8">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
+              <Clock className="w-5 h-5 mr-2 text-orange-500" />
+              Hourly Demand Prediction
+            </h3>
+            {demandPrediction ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-12 gap-1">
+                  {demandPrediction.hourly.map((hourData: any, index: number) => (
+                    <div
+                      key={index}
+                      className={`text-center p-2 rounded text-xs font-medium transition-all duration-200 ${
+                        hourData.isBusy 
+                          ? 'bg-red-500 text-white shadow-md' 
+                          : hourData.demand > demandPrediction.thresholds.hourly * 0.7
+                          ? 'bg-yellow-400 text-gray-900'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                      title={`${index}:00 - ${hourData.demand} projects${hourData.isBusy ? ' (BUSY)' : ''}`}
+                    >
+                      {index.toString().padStart(2, '0')}
+                      <div className="text-xs">{hourData.demand}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-xs text-gray-500 flex justify-between">
+                  <span>🟥 High Demand</span>
+                  <span>🟨 Medium Demand</span>
+                  <span>⬜ Low Demand</span>
+                </div>
+                <div className="bg-orange-50 p-3 rounded-lg">
+                  <p className="text-sm font-medium text-orange-800">Predicted Busy Hours:</p>
+                  <p className="text-sm text-orange-600">
+                    {demandPrediction.hourly
+                      .filter((h: any) => h.isBusy)
+                      .map((h: any) => `${h.hour.toString().padStart(2, '0')}:00`)
+                      .join(', ') || 'No busy hours predicted'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-32 flex items-center justify-center">
+                <p className="text-gray-500 text-sm">No demand data available</p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
+              <Calendar className="w-5 h-5 mr-2 text-blue-500" />
+              Weekly Demand Prediction
+            </h3>
+            {demandPrediction ? (
+              <div className="space-y-4">
+                {demandPrediction.weekly.map((dayData: any, index: number) => (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+                      dayData.isBusy 
+                        ? 'bg-red-100 border-2 border-red-300' 
+                        : dayData.demand > demandPrediction.thresholds.weekly * 0.7
+                        ? 'bg-yellow-100 border-2 border-yellow-300'
+                        : 'bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <span className={`w-3 h-3 rounded-full mr-3 ${
+                        dayData.isBusy ? 'bg-red-500' : 
+                        dayData.demand > demandPrediction.thresholds.weekly * 0.7 ? 'bg-yellow-500' : 'bg-gray-400'
+                      }`}></span>
+                      <span className="font-medium">{dayData.day}</span>
+                      {dayData.isBusy && (
+                        <span className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full">BUSY</span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">{dayData.demand} projects</div>
+                      <div className="text-xs text-gray-500">{dayData.intensity.toFixed(0)}% intensity</div>
+                    </div>
+                  </div>
+                ))}
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="text-sm font-medium text-blue-800">Busiest Days:</p>
+                  <p className="text-sm text-blue-600">
+                    {demandPrediction.weekly
+                      .filter((d: any) => d.isBusy)
+                      .map((d: any) => d.day)
+                      .join(', ') || 'No particularly busy days identified'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-32 flex items-center justify-center">
+                <p className="text-gray-500 text-sm">No demand data available</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Time Analytics Section */}
