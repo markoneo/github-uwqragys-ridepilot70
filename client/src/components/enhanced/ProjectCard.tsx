@@ -324,7 +324,7 @@ const ProjectCard = React.memo(({
 
         {/* Actions Section - Clear separation */}
         <div className="p-4 bg-slate-50 border-t border-slate-100">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 overflow-hidden">
             {/* Left Side - Primary Action */}
             <div className="flex items-center gap-3">
               {onStart && project.status === 'active' && (
@@ -349,43 +349,43 @@ const ProjectCard = React.memo(({
               )}
             </div>
             
-            {/* Secondary Actions - Positioned closer to primary action */}
-            <div className="flex items-center gap-2 ml-4">
+            {/* Secondary Actions - Responsive layout to prevent cutoff */}
+            <div className="flex items-center gap-1 sm:gap-2 ml-2 sm:ml-4 flex-shrink-0">
               <button
                 onClick={onView}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors"
                 title="View full project details and client information"
               >
-                <Eye className="w-5 h-5" />
-                <span className="text-sm font-medium">View</span>
+                <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline">View</span>
               </button>
               
               <button
                 onClick={onEdit}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-indigo-100 text-indigo-600 transition-colors"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-indigo-100 text-indigo-600 transition-colors"
                 title="Edit project details, time, location, or driver"
               >
-                <Edit className="w-5 h-5" />
-                <span className="text-sm font-medium">Edit</span>
+                <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Edit</span>
               </button>
               
               {onVoucher && (
                 <button
                   onClick={onVoucher}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors"
                   title="Generate voucher for client - share via WhatsApp, email, or print"
                 >
-                  <FileText className="w-5 h-5" />
-                  <span className="text-sm font-medium">Voucher</span>
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-xs sm:text-sm font-medium hidden sm:inline">Voucher</span>
                 </button>
               )}
               
               <button
                 onClick={onDelete}
-                className="flex items-center justify-center p-2 rounded-lg hover:bg-red-100 text-red-600 transition-colors"
+                className="flex items-center justify-center p-2 rounded-lg hover:bg-red-100 text-red-600 transition-colors flex-shrink-0"
                 title="Delete project"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
