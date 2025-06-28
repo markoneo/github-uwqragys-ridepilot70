@@ -113,18 +113,30 @@ const ProjectListItem: React.FC<ListItemProps> = ({
                 </span>
               </div>
               
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <div className="flex items-center space-x-1">
-                  <Calendar size={14} />
-                  <span>{project.date} at {project.time}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-1">
+                    <Calendar size={14} />
+                    <span>{project.date} at {project.time}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Users size={14} />
+                    <span>{project.passengers} passenger{project.passengers !== 1 ? 's' : ''}</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <MapPin size={14} />
-                  <span className="truncate max-w-xs">{project.pickupLocation}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Users size={14} />
-                  <span>{project.passengers} passenger{project.passengers !== 1 ? 's' : ''}</span>
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-1">
+                    <MapPin size={14} className="text-emerald-600" />
+                    <span className="truncate max-w-xs">From: {project.pickupLocation}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <MapPin size={14} className="text-red-600" />
+                    <span className="truncate max-w-xs">To: {project.dropoffLocation}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <User size={14} className="text-blue-600" />
+                    <span className="truncate max-w-xs">Driver: {driverName}</span>
+                  </div>
                 </div>
               </div>
             </div>
