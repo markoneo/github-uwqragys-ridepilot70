@@ -330,7 +330,7 @@ export default function Hero() {
               </motion.div>
               
               <motion.div 
-                className="absolute -bottom-12 -left-12 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[260px] border border-white/20"
+                className="absolute -bottom-20 -left-16 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-5 z-40 hidden sm:block max-w-[260px] border border-white/20"
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ 
                   opacity: 1, 
