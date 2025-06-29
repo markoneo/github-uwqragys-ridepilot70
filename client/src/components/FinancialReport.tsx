@@ -934,7 +934,7 @@ export default function FinancialReport() {
                       <li>Only completed transfers are included in earnings calculations</li>
                       <li>Driver fees are used when specified, otherwise the full project price</li>
                       <li>All amounts are displayed in EUR</li>
-                      <li>Only drivers with earnings > €0 are shown</li>
+                      <li>Only drivers with earnings &gt; €0 are shown</li>
                     </ul>
                     <p>
                       Total driver earnings for {selectedYear}: 
