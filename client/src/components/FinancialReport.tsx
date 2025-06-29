@@ -39,18 +39,28 @@ interface CompanyData {
   };
 }
 
+interface DriverEarningsData {
+  id: string;
+  name: string;
+  total: number;
+  monthlyEarnings: {
+    [month: string]: number;
+  };
+}
+
 export default function FinancialReport() {
   const navigate = useNavigate();
-  const { projects, companies, payments } = useData();
+  const { projects, companies, payments, drivers } = useData();
   const [yearToDate, setYearToDate] = useState(0);
   const [monthlyData, setMonthlyData] = useState<MonthlyData>({});
   const [dailyData, setDailyData] = useState<DailyData>({});
   const [netProfitData, setNetProfitData] = useState<NetProfitData>({});
   const [companyData, setCompanyData] = useState<CompanyData[]>([]);
+  const [driverEarningsData, setDriverEarningsData] = useState<DriverEarningsData[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [years, setYears] = useState<number[]>([]);
-  const [viewMode, setViewMode] = useState<'monthly' | 'daily' | 'profit'>('monthly');
+  const [viewMode, setViewMode] = useState<'monthly' | 'daily' | 'profit' | 'drivers'>('monthly');
   const [loading, setLoading] = useState(true);
 
   // Get all available years from project data
@@ -210,9 +220,46 @@ export default function FinancialReport() {
         }))
         .sort((a, b) => b.total - a.total); // Sort by highest total
 
+      // Calculate driver earnings
+      const driverTotals: { [key: string]: { total: number, months: { [key: string]: number } } } = {};
+      
+      // Initialize driver totals
+      drivers.forEach(driver => {
+        driverTotals[driver.id] = {
+          total: 0,
+          months: {}
+        };
+      });
+
+      // Process completed projects for driver earnings
+      yearProjects
+        .filter(project => project.status === 'completed')
+        .forEach(project => {
+          const date = new Date(project.date);
+          const monthKey = date.toLocaleString('default', { month: 'long' });
+          const driverFee = project.driver_fee > 0 ? project.driver_fee : project.price;
+          
+          if (project.driver && driverTotals[project.driver]) {
+            driverTotals[project.driver].total += driverFee;
+            driverTotals[project.driver].months[monthKey] = (driverTotals[project.driver].months[monthKey] || 0) + driverFee;
+          }
+        });
+
+      // Format driver earnings data for display
+      const formattedDriverEarnings = drivers
+        .map(driver => ({
+          id: driver.id,
+          name: driver.name,
+          total: driverTotals[driver.id]?.total || 0,
+          monthlyEarnings: driverTotals[driver.id]?.months || {}
+        }))
+        .filter(driver => driver.total > 0) // Only show drivers with earnings
+        .sort((a, b) => b.total - a.total); // Sort by highest earnings
+
       setMonthlyData(orderedMonths);
       setDailyData(orderedDaily);
       setCompanyData(formattedCompanyData);
+      setDriverEarningsData(formattedDriverEarnings);
       setNetProfitData(profitData);
       setYearToDate(ytdTotal);
       setLoading(false);
@@ -241,8 +288,62 @@ export default function FinancialReport() {
   const generateCsv = () => {
     const isDaily = viewMode === 'daily';
     const isProfitView = viewMode === 'profit';
+    const isDriverView = viewMode === 'drivers';
     
-    if (isProfitView) {
+    if (isDriverView) {
+      // Driver earnings CSV format
+      let csvContent = 'Driver,';
+      
+      // Get all months that have driver earnings
+      const monthsWithEarnings = new Set<string>();
+      driverEarningsData.forEach(driver => {
+        Object.keys(driver.monthlyEarnings).forEach(month => {
+          monthsWithEarnings.add(month);
+        });
+      });
+      
+      const sortedMonths = Array.from(monthsWithEarnings).sort((a, b) => {
+        const monthOrder = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        return monthOrder.indexOf(a) - monthOrder.indexOf(b);
+      });
+      
+      // Add month headers
+      sortedMonths.forEach(month => {
+        csvContent += `"${month}",`;
+      });
+      csvContent += 'Year Total\n';
+      
+      // Add driver data
+      driverEarningsData.forEach(driver => {
+        csvContent += `"${driver.name}",`;
+        
+        // Add monthly values
+        sortedMonths.forEach(month => {
+          const value = driver.monthlyEarnings[month] || 0;
+          csvContent += `€${value.toFixed(2)},`;
+        });
+        
+        // Add driver total
+        csvContent += `€${driver.total.toFixed(2)}\n`;
+      });
+      
+      // Add total row
+      csvContent += 'Monthly Total,';
+      sortedMonths.forEach(month => {
+        const monthTotal = driverEarningsData.reduce((sum, driver) => 
+          sum + (driver.monthlyEarnings[month] || 0), 0);
+        csvContent += `€${monthTotal.toFixed(2)},`;
+      });
+      const yearTotal = driverEarningsData.reduce((sum, driver) => sum + driver.total, 0);
+      csvContent += `€${yearTotal.toFixed(2)}\n`;
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+      saveAs(blob, `driver_earnings_${selectedYear}.csv`);
+    } else if (isProfitView) {
       // Profit analysis CSV format
       let csvContent = 'Month,Revenue,Completed Payments,Pending Payments,Net Profit\n';
       
@@ -380,6 +481,17 @@ export default function FinancialReport() {
                 <TrendingUp className="w-4 h-4 mr-1 inline" />
                 Net Profit
               </button>
+              <button
+                onClick={() => setViewMode('drivers')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === 'drivers' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Building2 className="w-4 h-4 mr-1 inline" />
+                Drivers
+              </button>
             </div>
 
             <div className="flex items-center bg-white border rounded-lg px-3 py-2 shadow-sm">
@@ -438,13 +550,19 @@ export default function FinancialReport() {
                     <h2 className="text-lg font-medium text-gray-900">
                       {viewMode === 'monthly' ? 'Year-to-Date Total' : 
                         viewMode === 'daily' ? 'Month Total' : 
-                        'Net Profit Analysis'}: 
-                      {viewMode !== 'profit' && (
+                        viewMode === 'profit' ? 'Net Profit Analysis' :
+                        'Driver Earnings Analysis'}: 
+                      {viewMode !== 'profit' && viewMode !== 'drivers' && (
                         <span className="font-bold text-green-600 ml-2">
                           €{viewMode === 'monthly' 
                             ? yearToDate.toFixed(2) 
                             : Object.values(filteredDailyData).reduce((sum, day) => sum + day.total, 0).toFixed(2)
                           }
+                        </span>
+                      )}
+                      {viewMode === 'drivers' && (
+                        <span className="font-bold text-blue-600 ml-2">
+                          €{driverEarningsData.reduce((sum, driver) => sum + driver.total, 0).toFixed(2)}
                         </span>
                       )}
                     </h2>
@@ -460,7 +578,128 @@ export default function FinancialReport() {
               </div>
 
               <div className="overflow-x-auto">
-                {viewMode === 'profit' ? (
+                {viewMode === 'drivers' ? (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="sticky left-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                          Driver
+                        </th>
+                        {(() => {
+                          // Get all months that have driver earnings
+                          const monthsWithEarnings = new Set<string>();
+                          driverEarningsData.forEach(driver => {
+                            Object.keys(driver.monthlyEarnings).forEach(month => {
+                              monthsWithEarnings.add(month);
+                            });
+                          });
+                          
+                          const sortedMonths = Array.from(monthsWithEarnings).sort((a, b) => {
+                            const monthOrder = [
+                              'January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'
+                            ];
+                            return monthOrder.indexOf(a) - monthOrder.indexOf(b);
+                          });
+                          
+                          return sortedMonths.map((month) => (
+                            <th
+                              key={month}
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              {month}
+                            </th>
+                          ));
+                        })()}
+                        <th scope="col" className="bg-gray-100 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Total
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {driverEarningsData.map((driver, index) => {
+                        // Get all months that have driver earnings
+                        const monthsWithEarnings = new Set<string>();
+                        driverEarningsData.forEach(d => {
+                          Object.keys(d.monthlyEarnings).forEach(month => {
+                            monthsWithEarnings.add(month);
+                          });
+                        });
+                        
+                        const sortedMonths = Array.from(monthsWithEarnings).sort((a, b) => {
+                          const monthOrder = [
+                            'January', 'February', 'March', 'April', 'May', 'June',
+                            'July', 'August', 'September', 'October', 'November', 'December'
+                          ];
+                          return monthOrder.indexOf(a) - monthOrder.indexOf(b);
+                        });
+                        
+                        return (
+                          <tr key={driver.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                            <td className="sticky left-0 px-6 py-3 whitespace-nowrap font-medium text-gray-900 border-r border-gray-200 bg-inherit">
+                              <div className="flex items-center">
+                                <Building2 className="w-4 h-4 text-gray-400 mr-2" />
+                                {driver.name}
+                              </div>
+                            </td>
+                            {sortedMonths.map((month) => {
+                              const value = driver.monthlyEarnings[month] || 0;
+                              return (
+                                <td key={`${driver.id}-${month}`} className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                                  {value > 0 ? `€${value.toFixed(2)}` : '—'}
+                                </td>
+                              );
+                            })}
+                            <td className="bg-gray-100 px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                              €{driver.total.toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-blue-50 border-t-2 border-gray-300">
+                        <th className="sticky left-0 bg-blue-50 px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                          Monthly Total
+                        </th>
+                        {(() => {
+                          // Get all months that have driver earnings
+                          const monthsWithEarnings = new Set<string>();
+                          driverEarningsData.forEach(driver => {
+                            Object.keys(driver.monthlyEarnings).forEach(month => {
+                              monthsWithEarnings.add(month);
+                            });
+                          });
+                          
+                          const sortedMonths = Array.from(monthsWithEarnings).sort((a, b) => {
+                            const monthOrder = [
+                              'January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'
+                            ];
+                            return monthOrder.indexOf(a) - monthOrder.indexOf(b);
+                          });
+                          
+                          return sortedMonths.map((month) => {
+                            const monthTotal = driverEarningsData.reduce((sum, driver) => 
+                              sum + (driver.monthlyEarnings[month] || 0), 0);
+                            return (
+                              <th
+                                key={`total-${month}`}
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                              >
+                                €{monthTotal.toFixed(2)}
+                              </th>
+                            );
+                          });
+                        })()}
+                        <th className="bg-blue-100 px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                          €{driverEarningsData.reduce((sum, driver) => sum + driver.total, 0).toFixed(2)}
+                        </th>
+                      </tr>
+                    </tfoot>
+                  </table>
+                ) : viewMode === 'profit' ? (
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
@@ -686,7 +925,25 @@ export default function FinancialReport() {
             <div className="bg-white rounded-lg shadow-sm p-4">
               <div className="flex items-start">
                 <FileText className="w-5 h-5 text-gray-400 mr-2 mt-0.5" />
-                {viewMode === 'profit' ? (
+                {viewMode === 'drivers' ? (
+                  <div className="text-sm text-gray-600">
+                    <p className="mb-2">
+                      This report shows the monthly earnings breakdown for all drivers in {selectedYear} (EUR).
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-2 mb-2">
+                      <li>Only completed transfers are included in earnings calculations</li>
+                      <li>Driver fees are used when specified, otherwise the full project price</li>
+                      <li>All amounts are displayed in EUR</li>
+                      <li>Only drivers with earnings > €0 are shown</li>
+                    </ul>
+                    <p>
+                      Total driver earnings for {selectedYear}: 
+                      <span className="font-medium text-blue-600 ml-1">
+                        €{driverEarningsData.reduce((sum, driver) => sum + driver.total, 0).toFixed(2)}
+                      </span>
+                    </p>
+                  </div>
+                ) : viewMode === 'profit' ? (
                   <div className="text-sm text-gray-600">
                     <p className="mb-2">
                       This report shows the net profit analysis for {selectedYear}, calculated as:
