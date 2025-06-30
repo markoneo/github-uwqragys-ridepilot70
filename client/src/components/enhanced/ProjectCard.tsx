@@ -419,14 +419,6 @@ const ProjectCard = React.memo(({
             {/* Secondary Actions - Icon-only for cleaner UI */}
             <div className="flex items-center gap-2 ml-4 flex-shrink-0">
               <button
-                onClick={onView}
-                className="flex items-center justify-center p-2 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors"
-                title="View full project details and client information"
-              >
-                <Eye className="w-5 h-5" />
-              </button>
-              
-              <button
                 onClick={onEdit}
                 className="flex items-center justify-center p-2 rounded-lg hover:bg-indigo-100 text-indigo-600 transition-colors"
                 title="Edit project details, time, location, or driver"
