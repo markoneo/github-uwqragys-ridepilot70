@@ -91,7 +91,7 @@ const ProjectCard = React.memo(({
     const diff = projectDateTime.getTime() - now.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (hours < 1 && minutes < 60) return `${minutes}m`;
     if (hours < 24) return `${hours}h ${minutes}m`;
     const days = Math.floor(hours / 24);
@@ -127,7 +127,7 @@ const ProjectCard = React.memo(({
     if (isStarted) {
       return 'bg-gradient-to-r from-emerald-600 to-emerald-500';
     }
-    
+
     // Map theme colors to button-safe versions that work with white text
     const buttonColorMap: { [key: string]: string } = {
       'blue': 'bg-gradient-to-r from-blue-600 to-blue-500',
@@ -174,12 +174,12 @@ const ProjectCard = React.memo(({
       {/* Background Effects - Simplified */}
       <div className={`absolute inset-0 bg-gradient-to-br ${urgencyConfig.bgGradient} opacity-60`} />
       <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
-      
+
       {/* Company Accent Bar */}
       <div className={`absolute top-0 left-0 w-2 h-full ${getButtonColorClass()}`} />
 
       <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl border-2 ${urgencyConfig.borderColor} shadow-lg group-hover:shadow-xl transition-all duration-200 overflow-hidden`}>
-        
+
         {/* Top Status Bar */}
         <div className="flex justify-between items-center p-3 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-2">
@@ -189,14 +189,14 @@ const ProjectCard = React.memo(({
                 <span className="text-xs">{getTimeUntil()}</span>
               </div>
             )}
-            
+
             {project.paymentStatus === 'paid' && (
               <div className="bg-emerald-500 text-white p-1 rounded-full" title="Payment Received">
                 <CheckCircle2 className="w-3 h-3" />
               </div>
             )}
           </div>
-          
+
           {project.bookingId && (
             <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
               <span className="text-xs font-mono text-slate-600">#{project.bookingId}</span>
@@ -241,7 +241,7 @@ const ProjectCard = React.memo(({
                 </span>
               </div>
             </div>
-            
+
             {/* Price Section - Moved to separate area */}
             <div className="text-right">
               <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
@@ -328,7 +328,7 @@ const ProjectCard = React.memo(({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3 group/location">
                     <div className="bg-red-100 p-3 rounded-xl group-hover/location:bg-red-200 transition-colors flex-shrink-0">
                       <MapPin className="w-5 h-5 text-red-600" />
@@ -355,7 +355,7 @@ const ProjectCard = React.memo(({
                     <p className="text-xs text-slate-500 font-medium">Passengers</p>
                     <p className="text-lg font-bold text-slate-900">{project.passengers}</p>
                   </div>
-                  
+
                   <div className="text-center">
                     <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg mb-2 mx-auto">
                       <Car className="w-4 h-4 text-purple-600" />
@@ -363,7 +363,7 @@ const ProjectCard = React.memo(({
                     <p className="text-xs text-slate-500 font-medium">Vehicle</p>
                     <p className="text-sm font-bold text-slate-900">{carTypeName || 'Standard'}</p>
                   </div>
-                  
+
                   <div className="text-center">
                     <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 rounded-lg mb-2 mx-auto">
                       <Star className="w-4 h-4 text-indigo-600" />
@@ -384,6 +384,21 @@ const ProjectCard = React.memo(({
                     </p>
                   </div>
                 )}
+                {/* Client Contact Section */}
+                <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                    Client Contact
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-slate-600" />
+                    <a 
+                      href={`tel:${project.clientPhone || ''}`}
+                      className="text-lg font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      {project.clientPhone || 'Not provided'}
+                    </a>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
@@ -406,7 +421,7 @@ const ProjectCard = React.memo(({
                   <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </motion.button>
               )}
-              
+
               {/* Completed Trip Badge */}
               {project.status === 'completed' && (
                 <div className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-emerald-700 bg-emerald-100 border border-emerald-200">
@@ -415,7 +430,7 @@ const ProjectCard = React.memo(({
                 </div>
               )}
             </div>
-            
+
             {/* Secondary Actions - Icon-only for cleaner UI */}
             <div className="flex items-center gap-2 ml-4 flex-shrink-0">
               <button
@@ -425,7 +440,7 @@ const ProjectCard = React.memo(({
               >
                 <Edit className="w-5 h-5" />
               </button>
-              
+
               {onVoucher && (
                 <button
                   onClick={onVoucher}
@@ -435,7 +450,7 @@ const ProjectCard = React.memo(({
                   <FileText className="w-5 h-5" />
                 </button>
               )}
-              
+
               <button
                 onClick={onDelete}
                 className="flex items-center justify-center p-2 rounded-lg hover:bg-red-100 text-red-600 transition-colors"
