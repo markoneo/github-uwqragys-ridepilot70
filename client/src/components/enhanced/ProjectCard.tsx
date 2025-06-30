@@ -10,7 +10,6 @@ import {
   Car,
   ArrowRight,
   Edit,
-  Eye,
   Trash2,
   Play,
   CheckCircle2,
@@ -25,6 +24,7 @@ interface ProjectCardProps {
   project: {
     id: string;
     clientName: string;
+    clientPhone?: string;
     date: string;
     time: string;
     pickupLocation: string;
