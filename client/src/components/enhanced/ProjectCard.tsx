@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, 
   Users, 
@@ -17,7 +17,8 @@ import {
   FileText,
   Star,
   AlertCircle,
-  Zap
+  Zap,
+  ChevronDown
 } from 'lucide-react';
 
 interface ProjectCardProps {
@@ -50,6 +51,8 @@ interface ProjectCardProps {
   onStart?: () => void;
   onVoucher?: () => void;
   isStarted?: boolean;
+  isCollapsible?: boolean;
+  defaultExpanded?: boolean;
 }
 
 const ProjectCard = React.memo(({ 
@@ -65,8 +68,11 @@ const ProjectCard = React.memo(({
   onDelete,
   onStart,
   onVoucher,
-  isStarted = false
+  isStarted = false,
+  isCollapsible = false,
+  defaultExpanded = true
 }: ProjectCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const formatTime = (time: string) => {
     return time.substring(0, 5);
   };
@@ -200,6 +206,26 @@ const ProjectCard = React.memo(({
 
         {/* Main Header - Separated into clear sections */}
         <div className="p-4 space-y-3">
+          {/* Collapse Toggle Button */}
+          {isCollapsible && (
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+              >
+                <motion.div
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="w-5 h-5" />
+                </motion.div>
+                <span className="text-sm font-medium">
+                  {isExpanded ? 'Collapse' : 'Expand'} Details
+                </span>
+              </button>
+            </div>
+          )}
+
           {/* Time and Date Row */}
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-3">
@@ -246,81 +272,119 @@ const ProjectCard = React.memo(({
               <span>Contact available</span>
             </div>
           </div>
-        </div>
 
-        {/* Location Section - Better organized */}
-        <div className="px-4 py-3 bg-slate-50/50 border-y border-slate-100">
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 group/location">
-              <div className="bg-emerald-100 p-3 rounded-xl group-hover/location:bg-emerald-200 transition-colors flex-shrink-0">
-                <MapPin className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
-                  Pickup Location
-                </p>
-                <p className="text-sm font-medium text-slate-900 leading-relaxed break-words">
-                  {project.pickupLocation}
-                </p>
-              </div>
+          {/* Summary Route Info - Always visible */}
+          <div className="pt-2 border-t border-slate-100">
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span className="truncate">{project.pickupLocation}</span>
+              <ArrowRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
+              <MapPin className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <span className="truncate">{project.dropoffLocation}</span>
             </div>
-            
-            <div className="flex items-start gap-3 group/location">
-              <div className="bg-red-100 p-3 rounded-xl group-hover/location:bg-red-200 transition-colors flex-shrink-0">
-                <MapPin className="w-5 h-5 text-red-600" />
+            <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                <span>{project.passengers}</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-1">
-                  Dropoff Location
-                </p>
-                <p className="text-sm font-medium text-slate-900 leading-relaxed break-words">
-                  {project.dropoffLocation}
-                </p>
+              <div className="flex items-center gap-1">
+                <Car className="w-4 h-4" />
+                <span>{carTypeName || 'Standard'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4" />
+                <span>{driverName || 'TBA'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Trip Details - Reorganized as separate section */}
-        <div className="p-4">
-          <div className="grid grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl">
-            <div className="text-center">
-              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg mb-2 mx-auto">
-                <Users className="w-4 h-4 text-blue-600" />
+        {/* Collapsible Detailed Content */}
+        <AnimatePresence>
+          {(!isCollapsible || isExpanded) && (
+            <motion.div
+              initial={isCollapsible ? { height: 0, opacity: 0 } : { height: 'auto', opacity: 1 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              {/* Location Section - Better organized */}
+              <div className="px-4 py-3 bg-slate-50/50 border-y border-slate-100">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 group/location">
+                    <div className="bg-emerald-100 p-3 rounded-xl group-hover/location:bg-emerald-200 transition-colors flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
+                        Pickup Location
+                      </p>
+                      <p className="text-sm font-medium text-slate-900 leading-relaxed break-words">
+                        {project.pickupLocation}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 group/location">
+                    <div className="bg-red-100 p-3 rounded-xl group-hover/location:bg-red-200 transition-colors flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-1">
+                        Dropoff Location
+                      </p>
+                      <p className="text-sm font-medium text-slate-900 leading-relaxed break-words">
+                        {project.dropoffLocation}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-slate-500 font-medium">Passengers</p>
-              <p className="text-lg font-bold text-slate-900">{project.passengers}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg mb-2 mx-auto">
-                <Car className="w-4 h-4 text-purple-600" />
-              </div>
-              <p className="text-xs text-slate-500 font-medium">Vehicle</p>
-              <p className="text-sm font-bold text-slate-900">{carTypeName || 'Standard'}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 rounded-lg mb-2 mx-auto">
-                <Star className="w-4 h-4 text-indigo-600" />
-              </div>
-              <p className="text-xs text-slate-500 font-medium">Driver</p>
-              <p className="text-sm font-bold text-slate-900">{driverName || 'TBA'}</p>
-            </div>
-          </div>
 
-          {/* Notes Section - Separated */}
-          {project.description && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
-                Special Instructions
-              </p>
-              <p className="text-sm text-blue-900 leading-relaxed">
-                {project.description}
-              </p>
-            </div>
+              {/* Trip Details - Reorganized as separate section */}
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg mb-2 mx-auto">
+                      <Users className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium">Passengers</p>
+                    <p className="text-lg font-bold text-slate-900">{project.passengers}</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg mb-2 mx-auto">
+                      <Car className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium">Vehicle</p>
+                    <p className="text-sm font-bold text-slate-900">{carTypeName || 'Standard'}</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 rounded-lg mb-2 mx-auto">
+                      <Star className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium">Driver</p>
+                    <p className="text-sm font-bold text-slate-900">{driverName || 'TBA'}</p>
+                  </div>
+                </div>
+
+                {/* Notes Section - Separated */}
+                {project.description && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
+                      Special Instructions
+                    </p>
+                    <p className="text-sm text-blue-900 leading-relaxed">
+                      {project.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
 
         {/* Actions Section - Clear separation */}
         <div className="p-4 bg-slate-50 border-t border-slate-100">

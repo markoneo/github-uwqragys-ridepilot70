@@ -43,6 +43,10 @@ interface ProjectGridProps {
   getDriverName: (id: string) => string;
   getCarTypeName: (id: string) => string;
   getCompanyTheme: (companyId: string) => string;
+  cardSettings?: {
+    collapsible: boolean;
+    defaultExpanded: boolean;
+  };
 }
 
 // Memoized Project Card wrapper
@@ -57,7 +61,8 @@ export default function ProjectGrid({
   getCompanyName,
   getDriverName,
   getCarTypeName,
-  getCompanyTheme
+  getCompanyTheme,
+  cardSettings = { collapsible: false, defaultExpanded: true }
 }: ProjectGridProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -357,6 +362,8 @@ export default function ProjectGrid({
                           onDelete={() => onProjectAction(project.id, 'delete')}
                           onStart={() => onProjectAction(project.id, 'start')}
                           onVoucher={() => onProjectAction(project.id, 'voucher')}
+                          isCollapsible={cardSettings.collapsible}
+                          defaultExpanded={cardSettings.defaultExpanded}
                         />
                       </div>
                     ))}
@@ -392,6 +399,8 @@ export default function ProjectGrid({
                           onDelete={() => onProjectAction(project.id, 'delete')}
                           onStart={() => onProjectAction(project.id, 'start')}
                           onVoucher={() => onProjectAction(project.id, 'voucher')}
+                          isCollapsible={cardSettings.collapsible}
+                          defaultExpanded={cardSettings.defaultExpanded}
                         />
                       </div>
                     ))}
@@ -426,6 +435,8 @@ export default function ProjectGrid({
                           onDelete={() => onProjectAction(project.id, 'delete')}
                           onStart={() => onProjectAction(project.id, 'start')}
                           onVoucher={() => onProjectAction(project.id, 'voucher')}
+                          isCollapsible={cardSettings.collapsible}
+                          defaultExpanded={cardSettings.defaultExpanded}
                         />
                       </div>
                     ))}

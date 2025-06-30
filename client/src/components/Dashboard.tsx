@@ -29,7 +29,9 @@ import {
   Star,
   Grid3X3,
   List,
-  Map
+  Map,
+  Timeline,
+  Settings2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
@@ -39,6 +41,7 @@ import VoucherGenerator from './VoucherGenerator';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProjectGrid from './enhanced/ProjectGrid';
 import ProjectListView from './enhanced/ProjectListView';
+import ProjectTimeline from './enhanced/ProjectTimeline';
 import LocationAnalytics from './LocationAnalytics';
 
 // Memoized Enhanced Stats Card Component
@@ -214,7 +217,11 @@ export default function Dashboard() {
   const [voucherProjectId, setVoucherProjectId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'analytics'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'timeline' | 'analytics'>('grid');
+  const [cardSettings, setCardSettings] = useState({
+    collapsible: false,
+    defaultExpanded: true
+  });
 
   // Memoized company color cache
   const [companyColorCache] = useState<Record<string, string>>({});
@@ -424,41 +431,88 @@ export default function Dashboard() {
               <div className="flex items-center bg-white/50 rounded-lg p-2 gap-2">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-md transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
                     viewMode === 'grid' 
                       ? 'bg-white shadow-sm text-blue-600' 
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                   title="Grid View - See projects as cards in a grid layout"
                 >
-                  <Grid3X3 className="w-5 h-5" />
+                  <Grid3X3 className="w-4 h-4" />
                   <span className="text-sm font-medium">Grid</span>
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-md transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
                     viewMode === 'list' 
                       ? 'bg-white shadow-sm text-blue-600' 
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                   title="List View - See projects organized by date with expandable details"
                 >
-                  <List className="w-5 h-5" />
+                  <List className="w-4 h-4" />
                   <span className="text-sm font-medium">List</span>
                 </button>
                 <button
+                  onClick={() => setViewMode('timeline')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+                    viewMode === 'timeline' 
+                      ? 'bg-white shadow-sm text-blue-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  title="Timeline View - See projects on a horizontal timeline with scheduling conflicts"
+                >
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm font-medium">Timeline</span>
+                </button>
+                <button
                   onClick={() => setViewMode('analytics')}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-md transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
                     viewMode === 'analytics' 
                       ? 'bg-white shadow-sm text-blue-600' 
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                   title="Analytics View - Interactive map showing pickup and dropoff locations"
                 >
-                  <Map className="w-5 h-5" />
+                  <Map className="w-4 h-4" />
                   <span className="text-sm font-medium">Map</span>
                 </button>
               </div>
+              
+              {/* View Settings */}
+              {(viewMode === 'grid' || viewMode === 'list') && (
+                <div className="flex items-center bg-white/50 rounded-lg p-2 gap-2">
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="w-4 h-4 text-gray-500" />
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={cardSettings.collapsible}
+                        onChange={(e) => setCardSettings(prev => ({ 
+                          ...prev, 
+                          collapsible: e.target.checked 
+                        }))}
+                        className="rounded"
+                      />
+                      <span className="text-gray-700">Collapsible</span>
+                    </label>
+                    {cardSettings.collapsible && (
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={cardSettings.defaultExpanded}
+                          onChange={(e) => setCardSettings(prev => ({ 
+                            ...prev, 
+                            defaultExpanded: e.target.checked 
+                          }))}
+                          className="rounded"
+                        />
+                        <span className="text-gray-700">Default Expanded</span>
+                      </label>
+                    )}
+                  </div>
+                </div>
+              )}
               
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -652,8 +706,9 @@ export default function Dashboard() {
                       getDriverName={getDriverName}
                       getCarTypeName={getCarTypeName}
                       getCompanyTheme={getCompanyColorTheme}
+                      cardSettings={cardSettings}
                     />
-                  ) : (
+                  ) : viewMode === 'list' ? (
                     <ProjectListView
                       projects={activeProjects}
                       companies={companies}
@@ -665,7 +720,19 @@ export default function Dashboard() {
                       getCarTypeName={getCarTypeName}
                       getCompanyTheme={getCompanyColorTheme}
                     />
-                  )}
+                  ) : viewMode === 'timeline' ? (
+                    <ProjectTimeline
+                      projects={activeProjects}
+                      companies={companies}
+                      drivers={drivers}
+                      carTypes={carTypes}
+                      onProjectAction={handleProjectAction}
+                      getCompanyName={getCompanyName}
+                      getDriverName={getDriverName}
+                      getCarTypeName={getCarTypeName}
+                      getCompanyTheme={getCompanyColorTheme}
+                    />
+                  ) : null}
                 </div>
               )}
             </div>
