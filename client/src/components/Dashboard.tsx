@@ -30,7 +30,7 @@ import {
   Grid3X3,
   List,
   Map,
-  Timeline,
+  
   Settings2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +41,7 @@ import VoucherGenerator from './VoucherGenerator';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProjectGrid from './enhanced/ProjectGrid';
 import ProjectListView from './enhanced/ProjectListView';
-import ProjectTimeline from './enhanced/ProjectTimeline';
+
 import LocationAnalytics from './LocationAnalytics';
 
 // Memoized Enhanced Stats Card Component
@@ -217,7 +217,7 @@ export default function Dashboard() {
   const [voucherProjectId, setVoucherProjectId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'timeline' | 'analytics'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'analytics'>('grid');
   const [cardSettings, setCardSettings] = useState({
     collapsible: true,
     defaultExpanded: false
@@ -453,18 +453,7 @@ export default function Dashboard() {
                   <List className="w-4 h-4" />
                   <span className="text-sm font-medium">List</span>
                 </button>
-                <button
-                  onClick={() => setViewMode('timeline')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-                    viewMode === 'timeline' 
-                      ? 'bg-white shadow-sm text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="Timeline View - See projects on a horizontal timeline with scheduling conflicts"
-                >
-                  <Clock className="w-4 h-4" />
-                  <span className="text-sm font-medium">Timeline</span>
-                </button>
+                
                 <button
                   onClick={() => setViewMode('analytics')}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
@@ -710,18 +699,6 @@ export default function Dashboard() {
                     />
                   ) : viewMode === 'list' ? (
                     <ProjectListView
-                      projects={activeProjects}
-                      companies={companies}
-                      drivers={drivers}
-                      carTypes={carTypes}
-                      onProjectAction={handleProjectAction}
-                      getCompanyName={getCompanyName}
-                      getDriverName={getDriverName}
-                      getCarTypeName={getCarTypeName}
-                      getCompanyTheme={getCompanyColorTheme}
-                    />
-                  ) : viewMode === 'timeline' ? (
-                    <ProjectTimeline
                       projects={activeProjects}
                       companies={companies}
                       drivers={drivers}
