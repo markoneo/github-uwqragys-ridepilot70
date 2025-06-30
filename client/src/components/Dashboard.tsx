@@ -219,8 +219,8 @@ export default function Dashboard() {
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'timeline' | 'analytics'>('grid');
   const [cardSettings, setCardSettings] = useState({
-    collapsible: false,
-    defaultExpanded: true
+    collapsible: true,
+    defaultExpanded: false
   });
 
   // Memoized company color cache

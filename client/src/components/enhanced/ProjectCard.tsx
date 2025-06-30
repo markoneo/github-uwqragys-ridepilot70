@@ -208,10 +208,10 @@ const ProjectCard = React.memo(({
         <div className="p-4 space-y-3">
           {/* Collapse Toggle Button */}
           {isCollapsible && (
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+                className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors bg-slate-50 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium"
               >
                 <motion.div
                   animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -220,9 +220,12 @@ const ProjectCard = React.memo(({
                   <ChevronDown className="w-5 h-5" />
                 </motion.div>
                 <span className="text-sm font-medium">
-                  {isExpanded ? 'Collapse' : 'Expand'} Details
+                  {isExpanded ? 'Hide' : 'Show'} Details
                 </span>
               </button>
+              <div className="text-xs text-slate-500">
+                {isExpanded ? 'Full view' : 'Summary view'}
+              </div>
             </div>
           )}
 
