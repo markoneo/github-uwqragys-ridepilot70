@@ -348,6 +348,8 @@ export default function DriverDashboard({ driverId, driverName, driverUuid, onLo
   const [startedProjects, setStartedProjects] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
+  const [monthlyEarningsHistory, setMonthlyEarningsHistory] = useState<{[key: string]: number}>({});
+  const [selectedEarningsMonth, setSelectedEarningsMonth] = useState<string>('current');
 
   // Filter projects for this driver using the UUID
   useEffect(() => {
@@ -403,9 +405,16 @@ export default function DriverDashboard({ driverId, driverName, driverUuid, onLo
     let monthlyTotal = 0;
     let allTimeTotal = 0;
     
+    // Monthly earnings history
+    const monthlyHistory: {[key: string]: number} = {};
+    
     completedProjects.forEach(project => {
       const projectDate = new Date(project.date);
       const fee = project.driverFee > 0 ? project.driverFee : project.price;
+      
+      // Monthly history key (YYYY-MM format)
+      const monthKey = `${projectDate.getFullYear()}-${String(projectDate.getMonth() + 1).padStart(2, '0')}`;
+      monthlyHistory[monthKey] = (monthlyHistory[monthKey] || 0) + fee;
       
       // Today's earnings
       if (projectDate.toDateString() === today) {
@@ -430,6 +439,7 @@ export default function DriverDashboard({ driverId, driverName, driverUuid, onLo
     setWeeklyEarnings(weeklyTotal);
     setMonthlyEarnings(monthlyTotal);
     setTotalEarnings(allTimeTotal);
+    setMonthlyEarningsHistory(monthlyHistory);
   }, [completedProjects]);
 
   const getCompanyName = (id: string) => {
@@ -579,14 +589,41 @@ export default function DriverDashboard({ driverId, driverName, driverUuid, onLo
           className="mb-8"
         >
           <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-lg border border-emerald-200 p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-emerald-500 p-3 rounded-full">
-                <DollarSign className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-500 p-3 rounded-full">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Earnings Overview</h2>
+                  <p className="text-gray-600">Track your earnings from completed trips</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Earnings Overview</h2>
-                <p className="text-gray-600">Track your earnings from completed trips</p>
-              </div>
+              
+              {/* Month Selector */}
+              {Object.keys(monthlyEarningsHistory).length > 0 && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-600">View Month:</label>
+                  <select
+                    value={selectedEarningsMonth}
+                    onChange={(e) => setSelectedEarningsMonth(e.target.value)}
+                    className="bg-white border border-emerald-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option value="current">Current Month</option>
+                    {Object.keys(monthlyEarningsHistory)
+                      .sort((a, b) => b.localeCompare(a))
+                      .map(monthKey => {
+                        const [year, month] = monthKey.split('-');
+                        const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                        return (
+                          <option key={monthKey} value={monthKey}>
+                            {monthName}
+                          </option>
+                        );
+                      })}
+                  </select>
+                </div>
+              )}
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -617,14 +654,28 @@ export default function DriverDashboard({ driverId, driverName, driverUuid, onLo
               
               <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 font-medium mb-1">This Month</p>
-                  <p className="text-2xl font-bold text-emerald-600">{formatCurrency(monthlyEarnings)}</p>
+                  <p className="text-sm text-gray-600 font-medium mb-1">
+                    {selectedEarningsMonth === 'current' ? 'This Month' : 'Selected Month'}
+                  </p>
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {formatCurrency(selectedEarningsMonth === 'current' ? monthlyEarnings : (monthlyEarningsHistory[selectedEarningsMonth] || 0))}
+                  </p>
                   <p className="text-xs text-gray-500 mt-1">
                     {(() => {
-                      const startOfMonth = new Date();
-                      startOfMonth.setDate(1);
-                      startOfMonth.setHours(0, 0, 0, 0);
-                      return completedProjects.filter(p => new Date(p.date) >= startOfMonth).length;
+                      if (selectedEarningsMonth === 'current') {
+                        const startOfMonth = new Date();
+                        startOfMonth.setDate(1);
+                        startOfMonth.setHours(0, 0, 0, 0);
+                        return completedProjects.filter(p => new Date(p.date) >= startOfMonth).length;
+                      } else {
+                        const [year, month] = selectedEarningsMonth.split('-');
+                        const startOfSelectedMonth = new Date(parseInt(year), parseInt(month) - 1, 1);
+                        const endOfSelectedMonth = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+                        return completedProjects.filter(p => {
+                          const projectDate = new Date(p.date);
+                          return projectDate >= startOfSelectedMonth && projectDate <= endOfSelectedMonth;
+                        }).length;
+                      }
                     })()} trips
                   </p>
                 </div>
@@ -649,12 +700,25 @@ export default function DriverDashboard({ driverId, driverName, driverUuid, onLo
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 font-medium">Best Day This Month</p>
+                    <p className="text-sm text-gray-600 font-medium">
+                      Best Day {selectedEarningsMonth === 'current' ? 'This Month' : 'Selected Month'}
+                    </p>
                     <p className="text-lg font-bold text-gray-900">
                       {(() => {
-                        const startOfMonth = new Date();
-                        startOfMonth.setDate(1);
-                        const monthlyTrips = completedProjects.filter(p => new Date(p.date) >= startOfMonth);
+                        let monthlyTrips;
+                        if (selectedEarningsMonth === 'current') {
+                          const startOfMonth = new Date();
+                          startOfMonth.setDate(1);
+                          monthlyTrips = completedProjects.filter(p => new Date(p.date) >= startOfMonth);
+                        } else {
+                          const [year, month] = selectedEarningsMonth.split('-');
+                          const startOfSelectedMonth = new Date(parseInt(year), parseInt(month) - 1, 1);
+                          const endOfSelectedMonth = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+                          monthlyTrips = completedProjects.filter(p => {
+                            const projectDate = new Date(p.date);
+                            return projectDate >= startOfSelectedMonth && projectDate <= endOfSelectedMonth;
+                          });
+                        }
                         
                         const dailyEarnings = monthlyTrips.reduce((acc, trip) => {
                           const date = trip.date;
