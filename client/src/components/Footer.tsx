@@ -129,6 +129,28 @@ export default function Footer() {
                 <Mail className="w-4 h-4 mr-2 text-green-500" />
                 <span className="text-sm">ridepilot.info@gmail.com</span>
               </div>
+              
+              {/* Telegram QR Code Section */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 mb-2">Connect with us on Telegram</p>
+                  <div className="inline-block p-2 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <img 
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://t.me/RidePilot_Software"
+                      alt="Telegram QR Code"
+                      className="w-16 h-16"
+                    />
+                  </div>
+                  <a 
+                    href="https://t.me/RidePilot_Software" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block text-xs text-green-600 hover:text-green-700 mt-1 transition-colors"
+                  >
+                    @RidePilot_Software
+                  </a>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
