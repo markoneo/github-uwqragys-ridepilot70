@@ -227,15 +227,15 @@ const TodayTripsSection = ({
                       </p>
                       
                       {/* Pickup and Dropoff Locations */}
-                      <div className="space-y-2 mb-3">
+                      <div className="space-y-1 mb-3">
                         <div className="flex items-start gap-2">
-                          <MapPin className="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0" />
+                          <MapPin className="w-3 h-3 text-emerald-600 mt-0.5 flex-shrink-0" />
                           <span className="text-xs text-gray-600 break-words leading-tight">
                             <span className="font-medium text-emerald-700">From:</span> {project.pickupLocation}
                           </span>
                         </div>
                         <div className="flex items-start gap-2">
-                          <MapPin className="w-3 h-3 text-red-600 mt-1 flex-shrink-0" />
+                          <MapPin className="w-3 h-3 text-red-600 mt-0.5 flex-shrink-0" />
                           <span className="text-xs text-gray-600 break-words leading-tight">
                             <span className="font-medium text-red-700">To:</span> {project.dropoffLocation}
                           </span>
