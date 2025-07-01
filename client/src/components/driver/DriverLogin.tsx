@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Car, Lock, User, AlertCircle } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
+import { supabase } from '../../lib/supabase';
 
 interface DriverLoginProps {
   onDriverLogin: (driverId: string, driverName: string, driverUuid: string) => void;
@@ -11,7 +12,42 @@ export default function DriverLogin({ onDriverLogin }: DriverLoginProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [standAloneDrivers, setStandAloneDrivers] = useState<any[]>([]);
   const { drivers } = useData();
+
+  // Fetch drivers independently for driver portal
+  useEffect(() => {
+    const fetchDriversForPortal = async () => {
+      try {
+        console.log('Fetching drivers for driver portal...');
+        
+        // Try to get all drivers from all users (for driver portal access)
+        const { data, error } = await supabase
+          .from('drivers')
+          .select('*');
+
+        if (error) {
+          console.error('Error fetching drivers for portal:', error);
+          return;
+        }
+
+        const driversWithPin = (data || []).map(driver => ({
+          ...driver,
+          pin: driver.pin || '1234'
+        }));
+
+        console.log('Fetched drivers for portal:', driversWithPin);
+        setStandAloneDrivers(driversWithPin);
+      } catch (err) {
+        console.error('Error in fetchDriversForPortal:', err);
+      }
+    };
+
+    fetchDriversForPortal();
+  }, []);
+
+  // Use standalone drivers if context drivers are empty
+  const availableDrivers = drivers.length > 0 ? drivers : standAloneDrivers;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,10 +61,17 @@ export default function DriverLogin({ onDriverLogin }: DriverLoginProps) {
     setError('');
 
     try {
-      console.log('Attempting driver login:', { driverId, pin, driversCount: drivers.length });
+      console.log('Attempting driver login:', { driverId, pin, driversCount: availableDrivers.length });
+      console.log('Available drivers:', availableDrivers.map(d => ({ id: d.id, name: d.name, license: d.license, pin: d.pin })));
+      
+      // Check if no drivers are loaded
+      if (availableDrivers.length === 0) {
+        setError('No drivers found in the system. Please ensure drivers are added in the admin panel first.');
+        return;
+      }
       
       // Find the driver by license number (Driver ID) - case insensitive
-      const driver = drivers.find(d => {
+      const driver = availableDrivers.find(d => {
         const driverLicense = d.license?.toLowerCase().trim();
         const inputId = driverId.toLowerCase().trim();
         const driverPin = d.pin || '1234';
@@ -50,7 +93,9 @@ export default function DriverLogin({ onDriverLogin }: DriverLoginProps) {
         onDriverLogin(driverId, driver.name, driver.id);
       } else {
         console.log('Driver login failed - no matching driver found');
-        setError('Invalid Driver ID or PIN. Please check your credentials.');
+        const availableDriverIds = availableDrivers.map(d => d.license).filter(Boolean);
+        console.log('Available Driver IDs:', availableDriverIds);
+        setError(`Invalid Driver ID or PIN. Available Driver IDs: ${availableDriverIds.length > 0 ? availableDriverIds.join(', ') : 'None'}. Default PIN is 1234.`);
       }
     } catch (err) {
       console.error('Driver login error:', err);
