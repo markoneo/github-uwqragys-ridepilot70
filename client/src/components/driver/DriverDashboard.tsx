@@ -222,9 +222,25 @@ const TodayTripsSection = ({
                         </span>
                       </div>
                       
-                      <p className="text-sm font-medium text-gray-900 mb-1">
+                      <p className="text-sm font-medium text-gray-900 mb-2">
                         {project.clientName}
                       </p>
+                      
+                      {/* Pickup and Dropoff Locations */}
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-start gap-2">
+                          <MapPin className="w-3 h-3 text-emerald-600 mt-1 flex-shrink-0" />
+                          <span className="text-xs text-gray-600 break-words leading-tight">
+                            <span className="font-medium text-emerald-700">From:</span> {project.pickupLocation}
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <MapPin className="w-3 h-3 text-red-600 mt-1 flex-shrink-0" />
+                          <span className="text-xs text-gray-600 break-words leading-tight">
+                            <span className="font-medium text-red-700">To:</span> {project.dropoffLocation}
+                          </span>
+                        </div>
+                      </div>
                       
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
