@@ -83,6 +83,169 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, delay = 0 }: any)
   </motion.div>
 );
 
+const TodayTripsSection = ({ 
+  todayProjects, 
+  upcomingIn24Hours, 
+  startedProjects, 
+  handleStartTrip, 
+  handleCompleteTrip, 
+  getCompanyName, 
+  getCarTypeName 
+}: any) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  // Filter out trips that are already shown in priority section
+  const todayTripsNotInPriority = todayProjects.filter((project: any) => 
+    !upcomingIn24Hours.some((p: any) => p.id === project.id)
+  );
+
+  if (todayTripsNotInPriority.length === 0) return null;
+
+  return (
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg border border-blue-200 overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <Calendar className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Today's Schedule</h2>
+              <p className="text-blue-100">
+                {todayTripsNotInPriority.length} trip{todayTripsNotInPriority.length !== 1 ? 's' : ''} scheduled
+              </p>
+            </div>
+          </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="bg-white/20 hover:bg-white/30 p-3 rounded-xl transition-colors"
+          >
+            <motion.div
+              animate={{ rotate: isCollapsed ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ArrowRight className="w-5 h-5 text-white transform rotate-90" />
+            </motion.div>
+          </motion.button>
+        </div>
+        
+        {/* Summary Stats */}
+        <div className="mt-4 grid grid-cols-3 gap-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+            <p className="text-xs text-blue-100 font-medium">Total Earnings</p>
+            <p className="text-lg font-bold text-white">
+              {formatCurrency(todayTripsNotInPriority.reduce((sum: number, trip: any) => 
+                sum + (trip.driverFee > 0 ? trip.driverFee : trip.price), 0
+              ))}
+            </p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+            <p className="text-xs text-blue-100 font-medium">Started</p>
+            <p className="text-lg font-bold text-white">
+              {todayTripsNotInPriority.filter((trip: any) => startedProjects.has(trip.id)).length}
+            </p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+            <p className="text-xs text-blue-100 font-medium">Remaining</p>
+            <p className="text-lg font-bold text-white">
+              {todayTripsNotInPriority.filter((trip: any) => !startedProjects.has(trip.id)).length}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Collapsible Content */}
+      <AnimatePresence>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="p-6 space-y-6">
+              {todayTripsNotInPriority.map((project: any, index: number) => (
+                <TripCard
+                  key={project.id}
+                  project={project}
+                  index={index}
+                  onStart={handleStartTrip}
+                  onComplete={handleCompleteTrip}
+                  isStarted={startedProjects.has(project.id)}
+                  getCompanyName={getCompanyName}
+                  getCarTypeName={getCarTypeName}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Collapsed View - Quick Trip List */}
+      <AnimatePresence>
+        {isCollapsed && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 bg-white/50">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {todayTripsNotInPriority.map((project: any) => {
+                  const driverFee = project.driverFee > 0 ? project.driverFee : project.price;
+                  const isStarted = startedProjects.has(project.id);
+                  
+                  return (
+                    <div 
+                      key={project.id}
+                      className={`bg-white rounded-lg border p-3 shadow-sm hover:shadow-md transition-shadow ${
+                        isStarted ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-lg font-bold text-gray-900">
+                          {project.time.substring(0, 5)}
+                        </span>
+                        <span className={`text-sm font-medium px-2 py-1 rounded-full ${
+                          isStarted 
+                            ? 'bg-emerald-100 text-emerald-700' 
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {isStarted ? 'Started' : 'Pending'}
+                        </span>
+                      </div>
+                      
+                      <p className="text-sm font-medium text-gray-900 mb-1">
+                        {project.clientName}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          {getCompanyName(project.company)}
+                        </span>
+                        <span className="text-sm font-bold text-emerald-600">
+                          {formatCurrency(driverFee)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyName, getCarTypeName }: any) => {
   const urgency = getUrgencyLevel(project.date, project.time);
   const driverFee = project.driverFee > 0 ? project.driverFee : project.price;
@@ -824,38 +987,16 @@ export default function DriverDashboard({ driverId, driverName, driverUuid, onLo
                 </div>
               )}
 
-              {/* Today's Trips */}
-              {todayProjects.length > 0 && (
-                <div>
-              <motion.h2 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2"
-              >
-                <Calendar className="w-6 h-6 text-blue-500" />
-                Today's Schedule
-              </motion.h2>
-              <div className="space-y-6">
-                {todayProjects.map((project, index) => {
-                  const isInUpcoming = upcomingIn24Hours.some(p => p.id === project.id);
-                  if (isInUpcoming) return null;
-                  
-                  return (
-                    <TripCard
-                      key={project.id}
-                      project={project}
-                      index={index}
-                      onStart={handleStartTrip}
-                      onComplete={handleCompleteTrip}
-                      isStarted={startedProjects.has(project.id)}
-                      getCompanyName={getCompanyName}
-                      getCarTypeName={getCarTypeName}
-                    />
-                  );
-                })}
-              </div>
-                </div>
-              )}
+              {/* Today's Trips Section */}
+              <TodayTripsSection 
+                todayProjects={todayProjects}
+                upcomingIn24Hours={upcomingIn24Hours}
+                startedProjects={startedProjects}
+                handleStartTrip={handleStartTrip}
+                handleCompleteTrip={handleCompleteTrip}
+                getCompanyName={getCompanyName}
+                getCarTypeName={getCarTypeName}
+              />
 
               {/* Future Trips Preview */}
               {futureProjects.length > 0 && (
