@@ -25,18 +25,35 @@ export default function DriverLogin({ onDriverLogin }: DriverLoginProps) {
     setError('');
 
     try {
-      // Find the driver by license number (Driver ID) and verify PIN
-      const driver = drivers.find(d => 
-        d.license.toLowerCase() === driverId.toLowerCase() && 
-        (d.pin || '1234') === pin
-      );
+      console.log('Attempting driver login:', { driverId, pin, driversCount: drivers.length });
+      
+      // Find the driver by license number (Driver ID) - case insensitive
+      const driver = drivers.find(d => {
+        const driverLicense = d.license?.toLowerCase().trim();
+        const inputId = driverId.toLowerCase().trim();
+        const driverPin = d.pin || '1234';
+        
+        console.log('Checking driver:', { 
+          driverLicense, 
+          inputId, 
+          driverPin, 
+          inputPin: pin,
+          licenseMatch: driverLicense === inputId,
+          pinMatch: driverPin === pin
+        });
+        
+        return driverLicense === inputId && driverPin === pin;
+      });
 
       if (driver) {
+        console.log('Driver login successful:', driver);
         onDriverLogin(driverId, driver.name, driver.id);
       } else {
+        console.log('Driver login failed - no matching driver found');
         setError('Invalid Driver ID or PIN. Please check your credentials.');
       }
     } catch (err) {
+      console.error('Driver login error:', err);
       setError('Login failed. Please try again.');
     } finally {
       setLoading(false);

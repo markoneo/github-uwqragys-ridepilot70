@@ -122,7 +122,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (currentUser && !dataFetched) {
       setLoading(true);
       console.log("Fetching data for user:", currentUser.id);
-      
+
       // Use Promise.allSettled to handle partial failures
       Promise.allSettled([
         fetchCompanies(),
@@ -136,7 +136,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         if (errors.length > 0) {
           console.error("Some data failed to load:", errors);
           setError("Some data could not be loaded. Please try refreshing.");
-          
+
           // Retry loading if less than 3 attempts
           if (retryCount < 3) {
             setRetryCount(prev => prev + 1);
@@ -171,7 +171,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const now = new Date();
       const [year, month, day] = date.split('-').map(Number);
       const [hours, minutes] = time.split(':').map(Number);
-      
+
       const projectDateTime = new Date(year, month - 1, day, hours, minutes);
       return projectDateTime > now;
     } catch (err) {
@@ -280,7 +280,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             completed_at: new Date().toISOString() 
           })
           .eq('id', id);
-          
+
         if (error) {
           console.log("Direct update also failed:", error);
           throw error;
@@ -304,12 +304,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           ));
         }
       }
-      
+
       // Force refresh data to ensure UI is in sync with database
       setTimeout(() => {
         fetchPayments().catch(e => console.error("Failed to refresh payments after completion:", e));
       }, 500);
-      
+
     } catch (err) {
       console.error('Error completing payment:', err);
       setError(`Error completing payment: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -335,27 +335,29 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function fetchDrivers() {
+    if (!currentUser?.id) return;
+
     try {
-      console.log("Fetching drivers for user:", currentUser?.id);
       const { data, error } = await supabase
         .from('drivers')
         .select('*')
-        .eq('user_id', currentUser?.id);
+        .eq('user_id', currentUser.id);
 
       if (error) {
-        throw error;
+        console.error('Error fetching drivers:', error);
+        return;
       }
-      
-      // Ensure all drivers have a PIN field for backward compatibility
+
+      // Ensure all drivers have a PIN field (fallback to '1234' if missing)
       const driversWithPin = (data || []).map(driver => ({
         ...driver,
         pin: driver.pin || '1234'
       }));
-      
+
+      console.log('Fetched drivers:', driversWithPin);
       setDrivers(driversWithPin);
     } catch (err) {
       console.error('Error fetching drivers:', err);
-      throw err;
     }
   }
 
@@ -455,7 +457,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     try {
       // Handle PIN column that might not exist in database
       const dbDriver = { ...driver, user_id: currentUser?.id };
-      
+
       const { data, error } = await supabase
         .from('drivers')
         .insert([dbDriver])
@@ -471,7 +473,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             .insert([dbDriver])
             .select()
             .single();
-          
+
           if (retryError) {
             throw retryError;
           }
@@ -482,7 +484,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           throw error;
         }
       }
-      
+
       setDrivers([...drivers, data]);
     } catch (err) {
       console.error('Error adding driver:', err);
@@ -517,15 +519,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const addProject = async (project: Omit<Project, 'id'>) => {
     try {
       const projectData = transformProjectForDB(project);
-      
+
       // Generate a random booking ID if none is provided
       if (!projectData.booking_id) {
         projectData.booking_id = Math.floor(Math.random() * 1000000000).toString();
       }
-      
+
       // Add user_id
       projectData.user_id = currentUser?.id;
-      
+
       // For optional fields that might be empty, provide default values
       if (!projectData.company_id) projectData.company_id = null;
       if (!projectData.driver_id) projectData.driver_id = null;
@@ -533,9 +535,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (!projectData.pickup_location) projectData.pickup_location = 'Not specified';
       if (!projectData.dropoff_location) projectData.dropoff_location = 'Not specified';
       if (!projectData.client_name) projectData.client_name = 'Anonymous';
-      
+
       console.log("Adding project with data:", projectData);
-      
+
       const { data, error } = await supabase
         .from('projects')
         .insert([projectData])
@@ -574,13 +576,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       // For completed projects, we don't need to validate the date/time
       const project = projects.find(p => p.id === id);
       const isCompleting = updates.status === 'completed';
-      
+
       // Only validate date/time for active projects
       if (!isCompleting && project) {
         // Validate date and time are in the future if they are part of the updates
         const dateToCheck = updates.date || project.date;
         const timeToCheck = updates.time || project.time;
-        
+
         if (!isDateTimeValid(dateToCheck, timeToCheck)) {
           throw new Error('Project date and time must be in the future');
         }
@@ -596,7 +598,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         throw error;
       }
-      
+
       setProjects(projects.map(project =>
         project.id === id ? { ...project, ...updates } : project));
     } catch (error) {
@@ -726,7 +728,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     try {
       // Handle PIN column that might not exist in database
       const dbUpdates = { ...updates };
-      
+
       const { error } = await supabase
         .from('drivers')
         .update(dbUpdates)
@@ -740,7 +742,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             .from('drivers')
             .update(dbUpdates)
             .eq('id', id);
-          
+
           if (retryError) {
             throw retryError;
           }
