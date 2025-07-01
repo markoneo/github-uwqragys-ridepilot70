@@ -83,7 +83,7 @@ export default function Footer() {
               </a>
             </div>
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
             <ul className="space-y-3">
@@ -131,7 +131,7 @@ export default function Footer() {
               </div>
               <p className="mt-3 text-xs text-gray-500">We respect your privacy. Unsubscribe at any time.</p>
             </div>
-            
+
             <div className="mt-6 space-y-2">
               <div className="flex items-center text-gray-500">
                 <span className="text-sm font-medium text-gray-700">Artcomp</span>
@@ -147,7 +147,7 @@ export default function Footer() {
             </div>
           </motion.div>
         </div>
-        
+
         <motion.div 
           variants={itemVariants}
           className="mt-12 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center"
