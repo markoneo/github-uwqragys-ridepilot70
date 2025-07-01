@@ -247,6 +247,7 @@ const TodayTripsSection = ({
 };
 
 const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyName, getCarTypeName }: any) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const urgency = getUrgencyLevel(project.date, project.time);
   const driverFee = project.driverFee > 0 ? project.driverFee : project.price;
   
@@ -288,11 +289,11 @@ const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyNa
       <div className="absolute inset-0 bg-white/90 backdrop-blur-sm" />
       
       <div className={`relative bg-white/95 rounded-2xl border-2 ${config.borderColor} shadow-lg group-hover:shadow-2xl transition-all duration-300`}>
-        {/* Header */}
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl font-bold text-gray-900">
+        {/* Header - Always Visible */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="text-3xl font-bold text-gray-900">
                 {project.time.substring(0, 5)}
               </div>
               <div>
@@ -301,14 +302,14 @@ const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyNa
                     <motion.div
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 2 }}
-                      className={`${config.accentColor} text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1`}
+                      className={`${config.accentColor} text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1`}
                     >
                       <AlertCircle className="w-3 h-3" />
                       {getTimeUntilTrip(project.date, project.time)}
                     </motion.div>
                   )}
                   {urgency === 'soon' && (
-                    <div className={`${config.accentColor} text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1`}>
+                    <div className={`${config.accentColor} text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1`}>
                       <Clock className="w-3 h-3" />
                       {getTimeUntilTrip(project.date, project.time)}
                     </div>
@@ -321,7 +322,7 @@ const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyNa
             </div>
             
             <div className="text-right">
-              <div className="text-3xl font-bold text-emerald-600">
+              <div className="text-2xl font-bold text-emerald-600">
                 {formatCurrency(driverFee)}
               </div>
               <div className="text-xs text-gray-500 mt-1">
@@ -331,25 +332,38 @@ const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyNa
           </div>
           
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <User className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-gray-400" />
               <span className="text-lg font-semibold text-gray-900">{project.clientName}</span>
               {project.clientPhone && (
                 <button
                   onClick={() => window.open(`tel:${project.clientPhone}`, '_self')}
-                  className="p-2 rounded-full hover:bg-blue-100 text-blue-600 transition-colors"
+                  className="p-1 rounded-full hover:bg-blue-100 text-blue-600 transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                 </button>
               )}
             </div>
+            
+            {/* Expand/Collapse Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium text-gray-700"
+            >
+              {isExpanded ? 'Less Info' : 'More Info'}
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ArrowRight className="w-4 h-4 transform rotate-90" />
+              </motion.div>
+            </motion.button>
           </div>
-        </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Trip Details */}
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          {/* Compact Info - Always Visible */}
+          <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
             <div className="flex items-center gap-2">
               <Car className="w-4 h-4 text-gray-400" />
               <span className="text-gray-600">{getCarTypeName(project.carType)}</span>
@@ -359,121 +373,136 @@ const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyNa
               <span className="text-gray-600">{project.passengers} passengers</span>
             </div>
           </div>
-          
-          {/* Locations */}
-          <div className="space-y-4">
-            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="bg-emerald-500 p-2 rounded-lg">
-                    <MapPin className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">
-                      Pickup Location
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 leading-relaxed break-words">
-                      {project.pickupLocation}
-                    </p>
-                  </div>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(project.pickupLocation)}`, '_blank')}
-                  className="ml-3 p-2 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors"
-                >
-                  <Navigation className="w-4 h-4 text-emerald-600" />
-                </motion.button>
-              </div>
-            </div>
-            
-            <div className="bg-red-50 p-4 rounded-xl border border-red-200">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="bg-red-500 p-2 rounded-lg">
-                    <MapPin className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-red-700 uppercase tracking-wide mb-1">
-                      Dropoff Location
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 leading-relaxed break-words">
-                      {project.dropoffLocation}
-                    </p>
-                  </div>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(project.dropoffLocation)}`, '_blank')}
-                  className="ml-3 p-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
-                >
-                  <Navigation className="w-4 h-4 text-red-600" />
-                </motion.button>
-              </div>
-            </div>
-          </div>
+        </div>
 
-          {/* Payment Status */}
-          <div className={`p-4 rounded-xl border-2 ${
-            project.paymentStatus === 'paid' 
-              ? 'bg-green-50 border-green-200' 
-              : 'bg-orange-50 border-orange-200'
-          }`}>
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${
-                project.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-orange-500'
-              }`}>
-                {project.paymentStatus === 'paid' ? (
-                  <CheckCircle2 className="w-5 h-5 text-white" />
-                ) : (
-                  <Banknote className="w-5 h-5 text-white" />
+        {/* Expanded Content */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              <div className="p-4 space-y-4">
+                {/* Locations */}
+                <div className="space-y-3">
+                  <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="bg-emerald-500 p-2 rounded-lg">
+                          <MapPin className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">
+                            Pickup Location
+                          </p>
+                          <p className="text-sm font-medium text-gray-900 leading-relaxed break-words">
+                            {project.pickupLocation}
+                          </p>
+                        </div>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(project.pickupLocation)}`, '_blank')}
+                        className="ml-3 p-2 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors"
+                      >
+                        <Navigation className="w-4 h-4 text-emerald-600" />
+                      </motion.button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-red-50 p-3 rounded-xl border border-red-200">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="bg-red-500 p-2 rounded-lg">
+                          <MapPin className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-red-700 uppercase tracking-wide mb-1">
+                            Dropoff Location
+                          </p>
+                          <p className="text-sm font-medium text-gray-900 leading-relaxed break-words">
+                            {project.dropoffLocation}
+                          </p>
+                        </div>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(project.dropoffLocation)}`, '_blank')}
+                        className="ml-3 p-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
+                      >
+                        <Navigation className="w-4 h-4 text-red-600" />
+                      </motion.button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Status */}
+                <div className={`p-3 rounded-xl border-2 ${
+                  project.paymentStatus === 'paid' 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-orange-50 border-orange-200'
+                }`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      project.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-orange-500'
+                    }`}>
+                      {project.paymentStatus === 'paid' ? (
+                        <CheckCircle2 className="w-4 h-4 text-white" />
+                      ) : (
+                        <Banknote className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className={`text-sm font-bold uppercase tracking-wide ${
+                        project.paymentStatus === 'paid' ? 'text-green-700' : 'text-orange-700'
+                      }`}>
+                        {project.paymentStatus === 'paid' ? 'Payment Received' : 'Collect Payment'}
+                      </p>
+                      <p className={`text-lg font-bold mt-1 ${
+                        project.paymentStatus === 'paid' ? 'text-green-700' : 'text-orange-700'
+                      }`}>
+                        {formatCurrency(driverFee)}
+                      </p>
+                      <p className={`text-xs mt-1 ${
+                        project.paymentStatus === 'paid' ? 'text-green-600' : 'text-orange-600'
+                      }`}>
+                        {project.paymentStatus === 'paid' ? 'Already paid by client' : 'Collect from client'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {project.description && (
+                  <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
+                    <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">
+                      Special Instructions
+                    </p>
+                    <p className="text-sm text-blue-900 leading-relaxed">{project.description}</p>
+                  </div>
                 )}
               </div>
-              <div className="flex-1">
-                <p className={`text-sm font-bold uppercase tracking-wide ${
-                  project.paymentStatus === 'paid' ? 'text-green-700' : 'text-orange-700'
-                }`}>
-                  {project.paymentStatus === 'paid' ? 'Payment Received' : 'Collect Payment'}
-                </p>
-                <p className={`text-xl font-bold mt-1 ${
-                  project.paymentStatus === 'paid' ? 'text-green-700' : 'text-orange-700'
-                }`}>
-                  {formatCurrency(driverFee)}
-                </p>
-                <p className={`text-xs mt-1 ${
-                  project.paymentStatus === 'paid' ? 'text-green-600' : 'text-orange-600'
-                }`}>
-                  {project.paymentStatus === 'paid' ? 'Already paid by client' : 'Collect from client'}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          {project.description && (
-            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-              <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">
-                Special Instructions
-              </p>
-              <p className="text-sm text-blue-900 leading-relaxed">{project.description}</p>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
         
-        {/* Actions */}
-        <div className="p-6 bg-gray-50 border-t border-gray-100">
+        {/* Actions - Always Visible */}
+        <div className="p-4 bg-gray-50 border-t border-gray-100">
           <div className="flex items-center justify-between">
             <div className="text-center">
               <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Trip Fee</p>
-              <p className="text-2xl font-bold text-emerald-600">{formatCurrency(driverFee)}</p>
+              <p className="text-xl font-bold text-emerald-600">{formatCurrency(driverFee)}</p>
             </div>
             
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => isStarted ? onComplete(project.id) : onStart(project.id)}
-              className={`flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white shadow-lg transition-all duration-300 ${
+              className={`flex items-center gap-3 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all duration-300 ${
                 isStarted 
                   ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:shadow-emerald-500/25' 
                   : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:shadow-blue-500/25'
@@ -481,14 +510,14 @@ const TripCard = ({ project, index, onStart, onComplete, isStarted, getCompanyNa
             >
               {isStarted ? (
                 <>
-                  <CheckCircle2 className="w-5 h-5" />
+                  <CheckCircle2 className="w-4 h-4" />
                   Complete Trip
                 </>
               ) : (
                 <>
-                  <Play className="w-5 h-5" />
+                  <Play className="w-4 h-4" />
                   Start Trip
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3 h-3" />
                 </>
               )}
             </motion.button>
