@@ -205,50 +205,128 @@ const TodayTripsSection = ({
                   return (
                     <div 
                       key={project.id}
-                      className={`bg-white rounded-lg border p-3 shadow-sm hover:shadow-md transition-shadow ${
-                        isStarted ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200'
-                      }`}
+                      className="bg-white rounded-2xl border-2 border-blue-200 p-4 shadow-sm hover:shadow-lg transition-all duration-300"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-lg font-bold text-gray-900">
-                          {project.time.substring(0, 5)}
-                        </span>
-                        <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-                          isStarted 
-                            ? 'bg-emerald-100 text-emerald-700' 
-                            : 'bg-blue-100 text-blue-700'
-                        }`}>
-                          {isStarted ? 'Started' : 'Pending'}
-                        </span>
-                      </div>
-                      
-                      <p className="text-sm font-medium text-gray-900 mb-3">
-                        {project.clientName}
-                      </p>
-                      
-                      {/* Pickup and Dropoff Locations */}
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-start gap-2">
-                          <MapPin className="w-3 h-3 text-emerald-600 mt-0.5 flex-shrink-0" />
-                          <span className="text-xs text-gray-600 break-words leading-tight line-clamp-2">
-                            <span className="font-medium text-emerald-700">From:</span> {project.pickupLocation}
-                          </span>
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="text-3xl font-bold text-gray-900">
+                            {project.time.substring(0, 5)}
+                          </div>
+                          <div className="text-sm font-medium text-blue-600 uppercase tracking-wide">
+                            {getCompanyName(project.company)}
+                          </div>
                         </div>
-                        <div className="flex items-start gap-2">
-                          <MapPin className="w-3 h-3 text-red-600 mt-0.5 flex-shrink-0" />
-                          <span className="text-xs text-gray-600 break-words leading-tight line-clamp-2">
-                            <span className="font-medium text-red-700">To:</span> {project.dropoffLocation}
-                          </span>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-emerald-600">
+                            {formatCurrency(driverFee)}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            #{project.bookingId}
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
-                          {getCompanyName(project.company)}
-                        </span>
-                        <span className="text-sm font-bold text-emerald-600">
-                          {formatCurrency(driverFee)}
-                        </span>
+                      {/* Client and Vehicle Info */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-gray-400" />
+                          <span className="font-semibold text-gray-900">{project.clientName}</span>
+                          {project.clientPhone && (
+                            <button
+                              onClick={() => window.open(`tel:${project.clientPhone}`, '_self')}
+                              className="p-1 rounded-full hover:bg-blue-100 text-blue-600 transition-colors"
+                            >
+                              <Phone className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Car className="w-4 h-4" />
+                            <span>{getCarTypeName(project.carType)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            <span>{project.passengers} passengers</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Pickup Location */}
+                      <div className="bg-emerald-50 rounded-xl p-3 mb-3 border border-emerald-200">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-emerald-500 p-2 rounded-lg">
+                            <MapPin className="w-4 h-4 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">
+                              Pickup Location
+                            </p>
+                            <p className="text-sm font-medium text-gray-900 leading-relaxed break-words">
+                              {project.pickupLocation}
+                            </p>
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(project.pickupLocation)}`, '_blank')}
+                            className="p-2 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors"
+                          >
+                            <Navigation className="w-4 h-4 text-emerald-600" />
+                          </motion.button>
+                        </div>
+                      </div>
+                      
+                      {/* Dropoff Location */}
+                      <div className="bg-red-50 rounded-xl p-3 mb-4 border border-red-200">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-red-500 p-2 rounded-lg">
+                            <MapPin className="w-4 h-4 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-red-700 uppercase tracking-wide mb-1">
+                              Dropoff Location
+                            </p>
+                            <p className="text-sm font-medium text-gray-900 leading-relaxed break-words">
+                              {project.dropoffLocation}
+                            </p>
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(project.dropoffLocation)}`, '_blank')}
+                            className="p-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
+                          >
+                            <Navigation className="w-4 h-4 text-red-600" />
+                          </motion.button>
+                        </div>
+                      </div>
+                      
+                      {/* Action Button */}
+                      <div className="flex justify-center">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => isStarted ? handleCompleteTrip(project.id) : handleStartTrip(project.id)}
+                          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all duration-300 ${
+                            isStarted 
+                              ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:shadow-emerald-500/25' 
+                              : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:shadow-blue-500/25'
+                          }`}
+                        >
+                          {isStarted ? (
+                            <>
+                              <CheckCircle2 className="w-4 h-4" />
+                              Complete Trip
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-4 h-4" />
+                              Start Trip
+                            </>
+                          )}
+                        </motion.button>
                       </div>
                     </div>
                   );
