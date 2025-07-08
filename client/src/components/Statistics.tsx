@@ -49,7 +49,11 @@ export default function Statistics() {
     total: 0,
     active: 0,
     completed: 0,
-    totalRevenue: 0
+    totalRevenue: 0,
+    totalPassengers: 0,
+    todayPassengers: 0,
+    weeklyPassengers: 0,
+    monthlyPassengers: 0
   });
   const [companyStats, setCompanyStats] = useState<{ [key: string]: number }>({});
   const [topDrivers, setTopDrivers] = useState<Array<{ id: string; total: number }>>([]);
@@ -76,12 +80,42 @@ export default function Statistics() {
   // Calculate statistics
   useEffect(() => {
     try {
+      // Calculate passenger statistics
+      const now = new Date();
+      const today = now.toDateString();
+      
+      // Start of current week (Monday)
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay() + 1);
+      startOfWeek.setHours(0, 0, 0, 0);
+      
+      // Start of current month
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const totalPassengers = projects.reduce((sum, p) => sum + (p.passengers || 0), 0);
+      
+      const todayPassengers = projects
+        .filter(p => new Date(p.date).toDateString() === today)
+        .reduce((sum, p) => sum + (p.passengers || 0), 0);
+      
+      const weeklyPassengers = projects
+        .filter(p => new Date(p.date) >= startOfWeek)
+        .reduce((sum, p) => sum + (p.passengers || 0), 0);
+      
+      const monthlyPassengers = projects
+        .filter(p => new Date(p.date) >= startOfMonth)
+        .reduce((sum, p) => sum + (p.passengers || 0), 0);
+
       // Project statistics
       const stats = {
         total: projects.length,
         active: projects.filter(p => p.status === 'active').length,
         completed: projects.filter(p => p.status === 'completed').length,
-        totalRevenue: projects.reduce((sum, p) => sum + p.price, 0)
+        totalRevenue: projects.reduce((sum, p) => sum + p.price, 0),
+        totalPassengers,
+        todayPassengers,
+        weeklyPassengers,
+        monthlyPassengers
       };
       setStatistics(stats);
 
@@ -477,6 +511,49 @@ export default function Statistics() {
           </div>
         </div>
 
+        {/* Passenger Statistics */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 p-3 sm:p-6 rounded-xl shadow-md text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm text-indigo-100 mb-1">Total Passengers</p>
+                <h3 className="text-lg sm:text-2xl font-bold">{statistics.totalPassengers}</h3>
+              </div>
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-200" />
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-3 sm:p-6 rounded-xl shadow-md text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm text-emerald-100 mb-1">Today's Passengers</p>
+                <h3 className="text-lg sm:text-2xl font-bold">{statistics.todayPassengers}</h3>
+              </div>
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-200" />
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3 sm:p-6 rounded-xl shadow-md text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm text-blue-100 mb-1">Weekly Passengers</p>
+                <h3 className="text-lg sm:text-2xl font-bold">{statistics.weeklyPassengers}</h3>
+              </div>
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-200" />
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-3 sm:p-6 rounded-xl shadow-md text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm text-purple-100 mb-1">Monthly Passengers</p>
+                <h3 className="text-lg sm:text-2xl font-bold">{statistics.monthlyPassengers}</h3>
+              </div>
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-purple-200" />
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-8">
           {/* Daily Earnings */}
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
@@ -848,6 +925,159 @@ export default function Statistics() {
           </div>
 
           
+        </div>
+
+        {/* Passenger Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mt-8">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
+              <Users className="w-5 h-5 mr-2 text-indigo-500" />
+              Daily Passenger Count (Last 30 Days)
+            </h3>
+            <div className="space-y-3 sm:space-y-4 max-h-72 overflow-y-auto">
+              {Object.entries(dailyEarnings)
+                .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+                .slice(0, 10)
+                .map(([date]) => {
+                  const dayPassengers = projects
+                    .filter(p => p.date === date)
+                    .reduce((sum, p) => sum + (p.passengers || 0), 0);
+                  const maxDailyPassengers = Math.max(...Object.keys(dailyEarnings).map(d => 
+                    projects.filter(p => p.date === d).reduce((sum, p) => sum + (p.passengers || 0), 0)
+                  ));
+                  const percentage = maxDailyPassengers ? (dayPassengers / maxDailyPassengers) * 100 : 0;
+                  
+                  return (
+                    <div key={date} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-600">
+                          {new Date(date).toLocaleDateString('en-US', { 
+                            weekday: 'short', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3 sm:space-x-4">
+                        <div className="w-20 sm:w-24 h-2 bg-gray-100 rounded-full">
+                          <div
+                            className="h-full bg-indigo-500 rounded-full"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className="font-medium text-sm min-w-[40px] text-right">{dayPassengers}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              
+              {Object.keys(dailyEarnings).length === 0 && (
+                <div className="text-center py-4">
+                  <p className="text-gray-500 text-sm">No passenger data available</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Passenger Summary Stats */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-6 flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-indigo-500" />
+              Passenger Analytics
+            </h3>
+            <div className="space-y-4">
+              {(() => {
+                const avgPassengersPerTrip = projects.length > 0 
+                  ? statistics.totalPassengers / projects.length 
+                  : 0;
+                
+                // Find the day with most passengers
+                const dailyPassengerCounts = Object.keys(dailyEarnings).map(date => ({
+                  date,
+                  passengers: projects
+                    .filter(p => p.date === date)
+                    .reduce((sum, p) => sum + (p.passengers || 0), 0)
+                }));
+                
+                const bestPassengerDay = dailyPassengerCounts.reduce((best, current) => 
+                  current.passengers > (best?.passengers || 0) ? current : best
+                , null);
+                
+                // Monthly passenger trend
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+                const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                
+                const currentMonthPassengers = projects
+                  .filter(p => {
+                    const date = new Date(p.date);
+                    return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+                  })
+                  .reduce((sum, p) => sum + (p.passengers || 0), 0);
+                
+                const lastMonthPassengers = projects
+                  .filter(p => {
+                    const date = new Date(p.date);
+                    return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
+                  })
+                  .reduce((sum, p) => sum + (p.passengers || 0), 0);
+                
+                const monthlyGrowth = lastMonthPassengers > 0 
+                  ? ((currentMonthPassengers - lastMonthPassengers) / lastMonthPassengers * 100)
+                  : 0;
+                
+                return (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Avg. Passengers per Trip</span>
+                      <span className="font-semibold text-indigo-600">{avgPassengersPerTrip.toFixed(1)}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Monthly Growth</span>
+                      <span className={`font-semibold ${monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {monthlyGrowth >= 0 ? '+' : ''}{monthlyGrowth.toFixed(1)}%
+                      </span>
+                    </div>
+                    
+                    {bestPassengerDay && (
+                      <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            <Trophy className="w-4 h-4 text-indigo-600 mr-2" />
+                            <span className="text-sm text-gray-600">Best Passenger Day</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold text-indigo-700">{bestPassengerDay.passengers} passengers</div>
+                            <div className="text-xs text-indigo-500">
+                              {new Date(bestPassengerDay.date).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                weekday: 'short'
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                      <div className="bg-gray-50 p-3 rounded-lg text-center">
+                        <div className="text-lg font-bold text-gray-900">{statistics.todayPassengers}</div>
+                        <div className="text-xs text-gray-500">Today</div>
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded-lg text-center">
+                        <div className="text-lg font-bold text-gray-900">{statistics.weeklyPassengers}</div>
+                        <div className="text-xs text-gray-500">This Week</div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
         </div>
 
         {/* Growth Trends Section */}
