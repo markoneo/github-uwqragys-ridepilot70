@@ -81,89 +81,155 @@ export default function Navbar() {
           </button>
 
           {/* Desktop navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-2">
             {isCompletedProjects || isFinancialReport ? (
-              <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">Back to Dashboard</Link>
+              <Link 
+                to="/dashboard" 
+                className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
+              >
+                Back to Dashboard
+              </Link>
             ) : isDashboard ? (
               currentUser ? (
               <>
-                <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">Dashboard</Link>
-                <Link to="/statistics" className="text-gray-600 hover:text-gray-900 flex items-center">
-                  <BarChart2 className="w-5 h-5 mr-2" />
-                  Statistics
-                </Link>
-                <Link to="/financial-report" className="text-gray-600 hover:text-gray-900 flex items-center">
-                  <FileText className="w-5 h-5 mr-2" />
-                  Financial Report
-                </Link>
-                <Link to="/completed-projects" className="text-gray-600 hover:text-gray-900">Completed Projects</Link>
-                <Link to="/settings/payments" className="text-gray-600 hover:text-gray-900 flex items-center">
-                  <DollarSign className="w-5 h-5 mr-2" />
-                  Payments
-                </Link>
-                <Link to="/driver" className="text-gray-600 hover:text-gray-900 flex items-center">
-                  <Truck className="w-5 h-5 mr-2" />
-                  Driver Portal
-                </Link>
-                <button
-                  onClick={handleSettingsToggle}
-                  className="text-gray-600 hover:text-gray-900 flex items-center"
-                >
-                  <Settings className="w-5 h-5 mr-2" />
-                  Settings
-                </button>
-                <Link to="/settings/notifications" className="text-gray-600 hover:text-gray-900 flex items-center">
-                  <Bell className="w-5 h-5 mr-2" />
-                  Notifications
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Logout
-                </button>
+                {/* Primary Navigation Group */}
+                <div className="flex items-center space-x-1 mr-6">
+                  <Link 
+                    to="/dashboard" 
+                    className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link 
+                    to="/statistics" 
+                    className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 flex items-center"
+                  >
+                    <BarChart2 className="w-4 h-4 mr-2" />
+                    Statistics
+                  </Link>
+                  <Link 
+                    to="/financial-report" 
+                    className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 flex items-center"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Reports
+                  </Link>
+                </div>
+
+                {/* Secondary Navigation Group */}
+                <div className="flex items-center space-x-1 mr-6">
+                  <Link 
+                    to="/completed-projects" 
+                    className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                  >
+                    Projects
+                  </Link>
+                  <Link 
+                    to="/driver" 
+                    className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 flex items-center"
+                  >
+                    <Truck className="w-4 h-4 mr-2" />
+                    Driver Portal
+                  </Link>
+                </div>
+
+                {/* Action Buttons Group */}
+                <div className="flex items-center space-x-2">
+                  <Link 
+                    to="/settings/payments" 
+                    className="px-3 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all duration-200 flex items-center font-medium"
+                  >
+                    <DollarSign className="w-4 h-4 mr-1" />
+                    Payments
+                  </Link>
+                  
+                  <div className="h-6 w-px bg-gray-200 mx-2"></div>
+                  
+                  <Link 
+                    to="/settings/notifications" 
+                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                    title="Notifications"
+                  >
+                    <Bell className="w-5 h-5" />
+                  </Link>
+                  
+                  <button
+                    onClick={handleSettingsToggle}
+                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                    title="Settings"
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
+                  
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 font-medium"
+                  >
+                    Logout
+                  </button>
+                </div>
               </>
               ) : (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                    className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
                   >
-                    <LogIn className="w-5 h-5" />
+                    <LogIn className="w-4 h-4" />
                     <span>Login</span>
                   </button>
                   <button
                     onClick={() => setShowSignUpModal(true)}
-                    className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                    className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-md hover:shadow-lg"
                   >
-                    <UserPlus className="w-5 h-5" />
+                    <UserPlus className="w-4 h-4" />
                     <span>Sign Up</span>
                   </button>
                 </div>
               )
             ) : (
               <>
-                <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-                <Link to="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-                <Link to="/pricing" className="text-gray-600 hover:text-gray-900">Pricing</Link>
-                <Link to="/driver" className="text-gray-600 hover:text-gray-900 flex items-center">
-                  <Truck className="w-5 h-5 mr-2" />
-                  Driver Portal
-                </Link>
+                <div className="flex items-center space-x-1 mr-6">
+                  <Link 
+                    to="/" 
+                    className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                  >
+                    Home
+                  </Link>
+                  <Link 
+                    to="/about" 
+                    className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                  >
+                    About
+                  </Link>
+                  <Link 
+                    to="/pricing" 
+                    className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                  >
+                    Pricing
+                  </Link>
+                  <Link 
+                    to="/driver" 
+                    className="px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center font-medium"
+                  >
+                    <Truck className="w-4 h-4 mr-2" />
+                    Driver Portal
+                  </Link>
+                </div>
                 {!currentUser && (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                    className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
                   >
-                    <LogIn className="w-5 h-5" />
+                    <LogIn className="w-4 h-4" />
                     <span>Login</span>
                   </button>
                   <button
                     onClick={() => setShowSignUpModal(true)}
-                    className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                    className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-md hover:shadow-lg"
                   >
-                    <UserPlus className="w-5 h-5" />
+                    <UserPlus className="w-4 h-4" />
                     <span>Sign Up</span>
                   </button>
                 </div>
