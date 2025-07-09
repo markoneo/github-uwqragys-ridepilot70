@@ -416,102 +416,105 @@ export default function Dashboard() {
               </button>
             </div>
             
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleManualRefresh}
-                disabled={isRefreshing}
-                className="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-white/50 transition-colors"
-                title="Refresh data"
-              >
-                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span className="text-sm">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
-              </button>
-              
-              {/* View Mode Toggle with Labels */}
-              <div className="flex items-center bg-white/50 rounded-lg p-2 gap-2">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-                    viewMode === 'grid' 
-                      ? 'bg-white shadow-sm text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="Grid View - See projects as cards in a grid layout"
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                  <span className="text-sm font-medium">Grid</span>
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-                    viewMode === 'list' 
-                      ? 'bg-white shadow-sm text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="List View - See projects organized by date with expandable details"
-                >
-                  <List className="w-4 h-4" />
-                  <span className="text-sm font-medium">List</span>
-                </button>
-                
-                <button
-                  onClick={() => setViewMode('analytics')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-                    viewMode === 'analytics' 
-                      ? 'bg-white shadow-sm text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="Analytics View - Interactive map showing pickup and dropoff locations"
-                >
-                  <Map className="w-4 h-4" />
-                  <span className="text-sm font-medium">Map</span>
-                </button>
-              </div>
-              
-              {/* View Settings */}
-              {(viewMode === 'grid' || viewMode === 'list') && (
-                <div className="flex items-center bg-white/50 rounded-lg p-2 gap-2">
-                  <div className="flex items-center gap-2">
-                    <Settings2 className="w-4 h-4 text-gray-500" />
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={cardSettings.collapsible}
-                        onChange={(e) => setCardSettings(prev => ({ 
-                          ...prev, 
-                          collapsible: e.target.checked 
-                        }))}
-                        className="rounded"
-                      />
-                      <span className="text-gray-700">Collapsible</span>
-                    </label>
-                    {cardSettings.collapsible && (
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={cardSettings.defaultExpanded}
-                          onChange={(e) => setCardSettings(prev => ({ 
-                            ...prev, 
-                            defaultExpanded: e.target.checked 
-                          }))}
-                          className="rounded"
-                        />
-                        <span className="text-gray-700">Default Expanded</span>
-                      </label>
-                    )}
-                  </div>
-                </div>
-              )}
-              
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              {/* Mobile: New Project Button First */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/new-project')}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 lg:order-last"
               >
                 <Plus className="w-5 h-5" />
-                New Project
+                <span className="sm:inline">New Project</span>
               </motion.button>
+
+              <div className="flex items-center gap-2 overflow-x-auto">
+                <button
+                  onClick={handleManualRefresh}
+                  disabled={isRefreshing}
+                  className="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-white/50 transition-colors flex-shrink-0"
+                  title="Refresh data"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span className="text-sm">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+                </button>
+                
+                {/* View Mode Toggle - Mobile Optimized */}
+                <div className="flex items-center bg-white/50 rounded-lg p-1 gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`flex items-center gap-1 px-2 py-2 rounded-md transition-all ${
+                      viewMode === 'grid' 
+                        ? 'bg-white shadow-sm text-blue-600' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    title="Grid View"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                    <span className="text-sm font-medium hidden sm:inline">Grid</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`flex items-center gap-1 px-2 py-2 rounded-md transition-all ${
+                      viewMode === 'list' 
+                        ? 'bg-white shadow-sm text-blue-600' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    title="List View"
+                  >
+                    <List className="w-4 h-4" />
+                    <span className="text-sm font-medium hidden sm:inline">List</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => setViewMode('analytics')}
+                    className={`flex items-center gap-1 px-2 py-2 rounded-md transition-all ${
+                      viewMode === 'analytics' 
+                        ? 'bg-white shadow-sm text-blue-600' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    title="Analytics View"
+                  >
+                    <Map className="w-4 h-4" />
+                    <span className="text-sm font-medium hidden sm:inline">Map</span>
+                  </button>
+                </div>
+                
+                {/* View Settings - Mobile Optimized */}
+                {(viewMode === 'grid' || viewMode === 'list') && (
+                  <div className="flex items-center bg-white/50 rounded-lg p-1 gap-1 flex-shrink-0">
+                    <div className="flex items-center gap-1">
+                      <Settings2 className="w-4 h-4 text-gray-500" />
+                      <label className="flex items-center gap-1 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={cardSettings.collapsible}
+                          onChange={(e) => setCardSettings(prev => ({ 
+                            ...prev, 
+                            collapsible: e.target.checked 
+                          }))}
+                          className="rounded w-3 h-3"
+                        />
+                        <span className="text-gray-700 hidden sm:inline">Collapsible</span>
+                      </label>
+                      {cardSettings.collapsible && (
+                        <label className="flex items-center gap-1 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={cardSettings.defaultExpanded}
+                            onChange={(e) => setCardSettings(prev => ({ 
+                              ...prev, 
+                              defaultExpanded: e.target.checked 
+                            }))}
+                            className="rounded w-3 h-3"
+                          />
+                          <span className="text-gray-700 hidden sm:inline">Default Expanded</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
